@@ -57,9 +57,9 @@
       </div>
       <div class="view-page hidden" data-page-view="attendance">
         <section class="panel">
-          <div class="panel-heading"><div><h2>Mark attendance</h2><p class="muted">Choose a date and tap the attendance button to cycle Present → Absent → Not Marked. Changes save automatically.</p></div><button id="markAllPresent" class="secondary" type="button">✓ Mark all present</button></div>
+          <div class="panel-heading"><div><h2>Attendance Management</h2><p class="muted">Choose a date and tap the attendance button to cycle Present → Absent → Not Marked. Changes save automatically.</p></div><button id="markAllPresent" class="secondary" type="button">✓ Mark all present</button></div>
           <div class="toolbar attendance-toolbar">
-            <label class="attendance-control attendance-search"><span>Search employee</span><input id="search" type="search" placeholder="Name or Employee ID"></label>
+            <label class="attendance-control attendance-search"><span>Search employee</span><div class="attendance-search-wrap"><span class="attendance-search-icon" aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Name or Employee ID"></div></label>
             <label class="attendance-control attendance-filter"><span>Attendance filter</span><select id="attendanceFilter"><option value="all">All attendance</option><option value="present">Present</option><option value="absent">Absent</option><option value="unmarked">Not Marked</option></select></label>
             <label class="attendance-control attendance-date date-input"><span>Attendance date</span><input id="attendanceDate" type="date"></label>
           </div>
@@ -100,5 +100,5 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="./config.js?v=3"></script><script src="./app.js?v=46"></script><script src="./register-sw.js"></script>
+  <script src="./config.js?v=3"></script><script src="./app.js?v=47"></script><script src="./register-sw.js"></script>
 </body></html>
