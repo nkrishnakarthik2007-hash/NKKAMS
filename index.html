@@ -7,7 +7,7 @@
   <meta name="description" content="NKKAMS Attendance Management System">
   <title>NKKAMS | Attendance Management</title>
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./modern.css?v=3">
+  <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./modern.css?v=4">
 </head>
 <body>
   <div class="app-shell">
@@ -31,7 +31,7 @@
         <form id="loginForm" class="form-stack">
           <label for="loginEmployeeId">Employee ID</label><input id="loginEmployeeId" autocomplete="username" placeholder="Enter Employee ID" required>
           <label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" required>
-          <button class="primary full" type="submit" id="loginSubmit">Sign in</button><p id="loginMessage" class="form-message" role="status"></p>
+          <button class="primary full" type="submit" id="loginSubmit">Sign in</button><p id="loginMessage" class="form-message" role="status"></p><button id="forgotToggle" class="text-button" type="button">Forgot password?</button><div id="forgotPanel" class="hidden"><div id="loginAdminContacts" class="contact-list"></div><form id="forgotForm" class="form-stack"><label for="forgotEmployeeId">Your Employee ID</label><input id="forgotEmployeeId" required maxlength="30" placeholder="Enter Employee ID"><label for="forgotMessage">Message (optional)</label><textarea id="forgotMessage" rows="2" maxlength="500" placeholder="Tell the admin what happened"></textarea><button class="secondary full" type="submit">Submit password reset request</button><p id="forgotResult" class="form-message"></p></form></div>
         </form>
         <div class="login-note hidden" id="setupNote"><strong>First-time setup?</strong> This is a new database. Create your Super Admin account once before signing in.</div>
         <button id="showBootstrap" class="secondary full hidden" type="button">Create first Super Admin account</button>
@@ -82,7 +82,7 @@
           <label class="password-field">Temporary password<input id="newUserPassword" type="password" minlength="12" required autocomplete="new-password" placeholder="At least 12 characters"></label>
           <div class="password-rules" id="passwordRules"><span data-rule="length">○ 12 characters</span><span data-rule="upper">○ Uppercase letter</span><span data-rule="lower">○ Lowercase letter</span><span data-rule="number">○ Number</span><span data-rule="symbol">○ Special character</span></div>
           <button class="primary" type="submit" id="createUserSubmit">Create account</button>
-          <p id="createUserMessage" class="form-message" role="status"></p>
+          <p id="createUserMessage" class="form-message" role="status"></p></form><h3 class="subheading">Registered accounts</h3><div class="table-wrap"><table><thead><tr><th>EMPLOYEE ID</th><th>NAME</th><th>ROLE</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="userRows"></tbody></table></div><p id="userListMessage" class="form-message"></p><form class="hidden">
         </form>
       </section>
       </div><div class="view-page hidden" data-page-view="requests"><section class="panel"><div class="panel-heading"><div><h2>Password reset requests</h2><p class="muted">Review requests from users who cannot sign in.</p></div><button id="refreshRequests" class="secondary" type="button">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>EMPLOYEE ID</th><th>REQUEST</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="resetRequestRows"></tbody></table></div><p id="requestMessage" class="form-message"></p></section></div>
@@ -100,5 +100,5 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./config.js?v=3"></script><script src="./app.js?v=5"></script><script src="./register-sw.js"></script>
+  <script src="./config.js?v=3"></script><script src="./app.js?v=6"></script><script src="./register-sw.js"></script>
 </body></html>
