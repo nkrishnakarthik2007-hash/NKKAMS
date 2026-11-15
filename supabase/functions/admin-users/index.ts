@@ -117,8 +117,9 @@ Deno.serve(async req=>{
     if(!passwordIsStrong(password))return json({error:"Password must be at least 8 characters and include uppercase, lowercase, number, and special character."},400);
     const email=String(body.email||"").trim(),phone=String(body.phone||"").trim();
     if(role==="admin"){
-      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254)return json({error:"Enter a valid Admin contact email."},400);
-      if(!/^[+0-9().\-\s]{7,25}$/.test(phone))return json({error:"Enter a valid Admin phone or WhatsApp number."},400);
+      if(!email&&!phone)return json({error:"Provide at least one Admin contact method: phone/WhatsApp or email. Phone is preferred."},400);
+      if(email&&(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254))return json({error:"Enter a valid Admin contact email or leave it blank."},400);
+      if(phone&&!/^[+0-9().\-\s]{7,25}$/.test(phone))return json({error:"Enter a valid Admin phone or WhatsApp number, or leave it blank."},400);
     }
 
     const{data:existing,error:lookupError}=await db.from("profiles").select("id").ilike("employee_id",employeeId).limit(1).maybeSingle();
@@ -131,14 +132,14 @@ Deno.serve(async req=>{
       return json({error:"The account could not be created. Check the details and try again."},400);
     }
     const authUserId=created.user.id;
-    const{error:insertError}=await db.from("profiles").insert({id:authUserId,employee_id:employeeId,name,email:role==="admin"?email:null,phone:role==="admin"?phone:null,role,created_by:user.id});
+    const{error:insertError}=await db.from("profiles").insert({id:authUserId,employee_id:employeeId,name,email:role==="admin"?(email||null):null,phone:role==="admin"?(phone||null):null,role,created_by:user.id});
     if(insertError){
       await db.auth.admin.deleteUser(authUserId);
       if(/duplicate|unique/i.test(insertError.message))return json({error:duplicateIdMessage},409);
       return json({error:"The account profile could not be saved. No account was retained."},400);
     }
     if(role==="admin"){
-      const{error:contactError}=await db.from("admin_contacts").insert({employee_id:employeeId,name,whatsapp:phone,email,created_by:user.id});
+      const{error:contactError}=await db.from("admin_contacts").insert({employee_id:employeeId,name,whatsapp:phone||null,email:email||null,created_by:user.id});
       if(contactError){
         await db.from("profiles").delete().eq("id",authUserId);
         await db.auth.admin.deleteUser(authUserId);
