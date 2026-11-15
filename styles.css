@@ -98,7 +98,7 @@ html[data-layout=mobile] .app-shell{max-width:720px;padding:8px 12px}html[data-l
  .mobile-account-menu{display:grid;position:absolute;right:12px;top:56px;z-index:1300;min-width:174px;padding:7px;border:1px solid #e3eaf4;border-radius:14px;background:#fff;box-shadow:0 16px 40px #10243a24}
  .mobile-account-menu button,.mobile-more-menu button{border:0;background:transparent;text-align:left;padding:12px;border-radius:9px;color:#253b5c;font:600 13px Inter,system-ui,sans-serif}
  .mobile-account-menu button:active,.mobile-more-menu button:active{background:#edf3ff;color:#1d4ed8}
- #appMain{display:block!important;padding-top:78px;min-width:0}
+ #appMain{display:block!important;padding-top:78px;padding-bottom:calc(92px + env(safe-area-inset-bottom));min-width:0}
  #appMain>.workspace-nav{display:none!important}
  .view-page{min-width:0;padding-top:4px;animation:mobilePageIn .2s ease both}
  @keyframes mobilePageIn{from{opacity:.65;transform:translateY(5px)}to{opacity:1;transform:none}}
