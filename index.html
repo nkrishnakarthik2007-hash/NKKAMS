@@ -32,7 +32,15 @@
           <label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" required>
           <button class="primary full" type="submit" id="loginSubmit">Sign in</button><p id="loginMessage" class="form-message" role="status"></p>
         </form>
-        <div class="login-note"><strong>First-time setup?</strong> Your previous Super Admin sign-in was preserved during the rebuild. Use the same Employee ID and password you used in the earlier AMS.</div>
+        <div class="login-note"><strong>First-time setup?</strong> This is a new database. Create your Super Admin account once before signing in.</div>
+        <button id="showBootstrap" class="secondary full" type="button">Create first Super Admin account</button>
+        <form id="bootstrapForm" class="form-stack hidden">
+          <label for="bootstrapEmployeeId">Super Admin Employee ID</label><input id="bootstrapEmployeeId" value="241536" maxlength="30" required>
+          <label for="bootstrapName">Administrator name</label><input id="bootstrapName" value="NKKAMS Administrator" maxlength="100" required>
+          <label for="bootstrapPassword">Create a new password</label><input id="bootstrapPassword" type="password" minlength="12" autocomplete="new-password" required placeholder="At least 12 characters">
+          <button class="primary full" id="bootstrapSubmit" type="submit">Create administrator account</button>
+          <p id="bootstrapMessage" class="form-message" role="status"></p>
+        </form>
       </div>
     </section>
     <main id="appMain" class="hidden">
