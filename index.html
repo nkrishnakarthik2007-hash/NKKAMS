@@ -49,6 +49,22 @@
         <div class="table-wrap"><table><thead><tr><th>STUDENT</th><th>EMPLOYEE ID</th><th>STATUS</th></tr></thead><tbody id="studentRows"><tr><td colspan="3" class="empty">Loading students…</td></tr></tbody></table></div>
         <div class="panel-footer"><span id="saveStatus" class="muted">Waiting for data…</span><button id="exportCsv" class="secondary" type="button">↓ Export this day (CSV)</button></div>
       </section>
+      <section class="panel admin-panel hidden" id="userAdminPanel">
+        <div class="panel-heading"><div><h2>Create user account</h2><p class="muted">Add a Teacher or Admin with a separate sign-in password.</p></div></div>
+        <form id="createUserForm" class="user-form">
+          <label>Employee ID<input id="newUserEmployeeId" maxlength="30" required placeholder="Example: EMP102"></label>
+          <label>Full name<input id="newUserName" maxlength="100" required placeholder="Employee full name"></label>
+          <label>Role<select id="newUserRole"><option value="teacher">Teacher</option><option value="admin">Admin</option></select></label>
+          <div id="adminContactFields" class="admin-contact-fields hidden">
+            <label>Contact email<input id="newUserEmail" type="email" placeholder="admin@example.com"></label>
+            <label>Phone / WhatsApp<input id="newUserPhone" type="tel" placeholder="+91..."></label>
+          </div>
+          <label class="password-field">Temporary password<input id="newUserPassword" type="password" minlength="12" required autocomplete="new-password" placeholder="At least 12 characters"></label>
+          <div class="password-rules" id="passwordRules"><span data-rule="length">○ 12 characters</span><span data-rule="upper">○ Uppercase letter</span><span data-rule="lower">○ Lowercase letter</span><span data-rule="number">○ Number</span><span data-rule="symbol">○ Special character</span></div>
+          <button class="primary" type="submit" id="createUserSubmit">Create account</button>
+          <p id="createUserMessage" class="form-message" role="status"></p>
+        </form>
+      </section>
       <section class="panel report-panel"><div class="panel-heading"><div><h2>Attendance reports</h2><p class="muted">Export monthly and individual Excel reports.</p></div></div>
         <div class="report-controls"><label><span>Year</span><select id="reportYear"></select></label><label><span>Month</span><select id="reportMonth"></select></label><label class="student-select"><span>Student</span><select id="reportStudent"><option value="">Choose a student</option></select></label></div>
         <div class="report-actions"><button id="exportMonthly" class="primary" type="button">Export monthly summary (.xlsx)</button><button id="exportIndividual" class="secondary" type="button">Export student report (.xlsx)</button></div><p id="reportMessage" class="form-message" role="status"></p>
