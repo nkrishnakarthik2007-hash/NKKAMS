@@ -9,3 +9,5 @@
 @media(max-width:700px){.user-form,.admin-contact-fields{grid-template-columns:1fr}.user-form .password-field,.admin-contact-fields,.password-rules,.user-form .form-message{grid-column:1}}
 .join-warning{border:0;background:transparent;color:#b45309;cursor:pointer;font-size:15px;padding:2px 5px;border-radius:6px}.join-warning:hover{background:#fef3c7}[data-theme=dark] .join-warning{color:#fbbf24}
 .attendance-cycle{min-width:132px;border:1px solid #d7e0ed;border-radius:10px;padding:9px 13px;font-weight:750;cursor:pointer}.cycle-present{background:#dcfce7!important;border-color:#86efac!important;color:#166534!important}.cycle-absent{background:#fee2e2!important;border-color:#fca5a5!important;color:#991b1b!important}.cycle-unmarked{background:#f1f5f9!important;border-color:#cbd5e1!important;color:#475569!important}
+
+/* Separate holiday management page */
