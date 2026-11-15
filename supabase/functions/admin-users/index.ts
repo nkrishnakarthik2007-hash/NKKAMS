@@ -28,6 +28,9 @@ Deno.serve(async req=>{
   const json=(value:unknown,status=200)=>jsonResponse(req,value,status);
   if(!policy.accepted)return json({error:"Origin is not allowed."},403);
   if(req.method!=="POST")return json({error:"Method not allowed"},405);
+  let body:{action?:string;role?:string;employee_id?:string;name?:string;email?:string;phone?:string;password?:string;active?:boolean};
+  try{body=await req.json()}catch{return json({error:"Request body must be valid JSON."},400)}
+  const employeeId=String(body.employee_id||"").trim().toUpperCase();
   const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   // One-time bootstrap: allowed only while the new project has no profiles.
   if(body.action==="bootstrap_super_admin"){
@@ -51,10 +54,6 @@ Deno.serve(async req=>{
   const{data:me,error:profileError}=await db.from("profiles").select("role,is_active").eq("id",user.id).single();
   if(profileError||!me?.is_active||!["admin","super_admin"].includes(me.role))return json({error:"You do not have permission to manage accounts."},403);
   const isSuper=me.role==="super_admin";
-  let body:{action?:string;role?:string;employee_id?:string;name?:string;email?:string;phone?:string;password?:string;active?:boolean};
-  try{body=await req.json()}catch{return json({error:"Request body must be valid JSON."},400)}
-  const employeeId=String(body.employee_id||"").trim().toUpperCase();
-
   if(body.action==="create_user"){
     const role=body.role;
     if(!["admin","teacher"].includes(role||""))return json({error:"Choose Teacher or Admin."},400);
