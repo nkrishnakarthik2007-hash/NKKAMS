@@ -22,87 +22,41 @@
         <button id="logoutBtn" class="secondary small hidden" type="button">Sign out</button>
       </div>
     </header>
-
     <section id="loginGate" class="login-wrap">
       <div class="login-card">
-        <div class="login-icon">N</div>
-        <p class="eyebrow">WELCOME BACK</p>
+        <div class="login-icon">N</div><p class="eyebrow">WELCOME BACK</p>
         <h1>Sign in to NKKAMS</h1>
         <p class="muted">Use the Employee ID and password given by your administrator.</p>
         <form id="loginForm" class="form-stack">
-          <label for="loginEmployeeId">Employee ID</label>
-          <input id="loginEmployeeId" name="employee_id" autocomplete="username" placeholder="Enter Employee ID" required>
-          <label for="loginPassword">Password</label>
-          <input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter password" required>
-          <button class="primary full" type="submit" id="loginSubmit">Sign in</button>
-          <p id="loginMessage" class="form-message" role="status"></p>
+          <label for="loginEmployeeId">Employee ID</label><input id="loginEmployeeId" autocomplete="username" placeholder="Enter Employee ID" required>
+          <label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" required>
+          <button class="primary full" type="submit" id="loginSubmit">Sign in</button><p id="loginMessage" class="form-message" role="status"></p>
         </form>
-        <div class="login-note"><strong>First-time setup?</strong> The first Super Admin account must be created securely from the Supabase Dashboard. See the setup guide in this repository's README.</div>
+        <div class="login-note"><strong>First-time setup?</strong> The secure administrator account must be provisioned from Supabase after database security and account functions are installed. See README.</div>
       </div>
     </section>
-
     <main id="appMain" class="hidden">
-      <section class="welcome">
-        <div>
-          <p class="eyebrow">WORKSPACE</p>
-          <h1>Attendance overview</h1>
-          <p class="muted">Welcome, <strong id="currentUserName">User</strong>. Here is today's attendance.</p>
-        </div>
-        <div class="date-card"><span id="clock">--:--:--</span><small id="today">Loading date…</small></div>
-      </section>
-
+      <section class="welcome"><div><p class="eyebrow">WORKSPACE</p><h1>Attendance overview</h1><p class="muted">Today's attendance workspace.</p></div><div class="date-card"><span id="clock">--:--:--</span><small id="today">Loading date…</small></div></section>
       <section class="stats">
         <article class="stat-card"><span class="stat-icon blue">👥</span><div><small>Total students</small><strong id="totalCount">0</strong></div></article>
         <article class="stat-card"><span class="stat-icon green">✓</span><div><small>Present</small><strong id="presentCount">0</strong></div></article>
         <article class="stat-card"><span class="stat-icon red">—</span><div><small>Absent</small><strong id="absentCount">0</strong></div></article>
       </section>
-
       <section class="panel">
-        <div class="panel-heading">
-          <div><h2>Daily attendance</h2><p class="muted">Select a date, then mark each student's attendance.</p></div>
-          <button id="addStudent" class="primary" type="button">＋ Add student</button>
-        </div>
-        <div class="toolbar">
-          <input id="search" type="search" placeholder="Search name or Employee ID">
-          <label class="date-input"><span>Attendance date</span><input id="attendanceDate" type="date"></label>
-        </div>
-        <form id="studentForm" class="add-form hidden">
-          <input id="studentName" placeholder="Student name" maxlength="100" required>
-          <input id="employeeId" placeholder="Employee ID" maxlength="30" required>
-          <label class="date-input"><span>Joining date (optional)</span><input id="joiningDate" type="date"></label>
-          <button class="primary" type="submit">Save student</button>
-          <button class="secondary" type="button" id="cancelAdd">Cancel</button>
-        </form>
-        <div class="table-wrap">
-          <table><thead><tr><th>STUDENT</th><th>EMPLOYEE ID</th><th>STATUS</th></tr></thead>
-            <tbody id="studentRows"><tr><td colspan="3" class="empty">Loading students…</td></tr></tbody>
-          </table>
-        </div>
-        <div class="panel-footer">
-          <span id="saveStatus" class="muted">Waiting for data…</span>
-          <button id="exportCsv" class="secondary" type="button">↓ Export this day (CSV)</button>
-        </div>
+        <div class="panel-heading"><div><h2>Daily attendance</h2><p class="muted">Choose a date, then mark attendance.</p></div><button id="addStudent" class="primary" type="button">＋ Add student</button></div>
+        <div class="toolbar"><input id="search" type="search" placeholder="Search name or Employee ID"><label class="date-input"><span>Attendance date</span><input id="attendanceDate" type="date"></label></div>
+        <form id="studentForm" class="add-form hidden"><input id="studentName" placeholder="Student name" maxlength="100" required><input id="employeeId" placeholder="Employee ID" maxlength="30" required><label class="date-input"><span>Joining date (optional)</span><input id="joiningDate" type="date"></label><button class="primary" type="submit">Save student</button><button class="secondary" type="button" id="cancelAdd">Cancel</button></form>
+        <div class="table-wrap"><table><thead><tr><th>STUDENT</th><th>EMPLOYEE ID</th><th>STATUS</th></tr></thead><tbody id="studentRows"><tr><td colspan="3" class="empty">Loading students…</td></tr></tbody></table></div>
+        <div class="panel-footer"><span id="saveStatus" class="muted">Waiting for data…</span><button id="exportCsv" class="secondary" type="button">↓ Export this day (CSV)</button></div>
       </section>
-
-      <section class="panel report-panel">
-        <div class="panel-heading"><div><h2>Attendance reports</h2><p class="muted">Create Excel reports for a month or an individual student.</p></div></div>
-        <div class="report-controls">
-          <label><span>Year</span><select id="reportYear"></select></label>
-          <label><span>Month</span><select id="reportMonth"></select></label>
-          <label class="student-select"><span>Student</span><select id="reportStudent"><option value="">Choose a student</option></select></label>
-        </div>
-        <div class="report-actions">
-          <button id="exportMonthly" class="primary" type="button">Export monthly summary (.xlsx)</button>
-          <button id="exportIndividual" class="secondary" type="button">Export student report (.xlsx)</button>
-        </div>
-        <p id="reportMessage" class="form-message" role="status"></p>
+      <section class="panel report-panel"><div class="panel-heading"><div><h2>Attendance reports</h2><p class="muted">Export monthly and individual Excel reports.</p></div></div>
+        <div class="report-controls"><label><span>Year</span><select id="reportYear"></select></label><label><span>Month</span><select id="reportMonth"></select></label><label class="student-select"><span>Student</span><select id="reportStudent"><option value="">Choose a student</option></select></label></div>
+        <div class="report-actions"><button id="exportMonthly" class="primary" type="button">Export monthly summary (.xlsx)</button><button id="exportIndividual" class="secondary" type="button">Export student report (.xlsx)</button></div><p id="reportMessage" class="form-message" role="status"></p>
       </section>
-      <p class="footnote">NKKAMS · Offline changes are kept on this device and will sync when the connection returns.</p>
+      <p class="footnote">NKKAMS · Offline changes are kept on this device and will sync when online.</p>
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./config.js"></script>
-  <script src="./app.js"></script>
-</body>
-</html>
+  <script src="./config.js"></script><script src="./app.js"></script><script src="./register-sw.js"></script>
+</body></html>
