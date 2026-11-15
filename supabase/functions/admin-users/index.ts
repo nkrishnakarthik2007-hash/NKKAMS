@@ -32,6 +32,11 @@ Deno.serve(async req=>{
   try{body=await req.json()}catch{return json({error:"Request body must be valid JSON."},400)}
   const employeeId=String(body.employee_id||"").trim().toUpperCase();
   const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  if(body.action==="bootstrap_status"){
+    const {count,error}=await db.from("profiles").select("id",{count:"exact",head:true});
+    if(error)return json({error:"Could not check setup status."},503);
+    return json({bootstrap_available:(count||0)===0});
+  }
   // One-time bootstrap: allowed only while the new project has no profiles.
   if(body.action==="bootstrap_super_admin"){
     const {count,error:countError}=await db.from("profiles").select("id",{count:"exact",head:true});
