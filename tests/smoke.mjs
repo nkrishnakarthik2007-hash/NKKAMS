@@ -8,8 +8,8 @@ for (const page of requiredPages) {
   assert.ok(html.includes('data-page-view="' + page + '"'), 'Missing page: ' + page);
   assert.ok(html.includes('data-page="' + page + '"'), 'Missing navigation item: ' + page);
 }
-const ids = new Set([...html.matchAll(/\\bid="([^"]+)"/g)].map(match => match[1]));
-const references = [...app.matchAll(/\\$\\('([^']+)'\\)/g)].map(match => match[1]);
+const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]));
+const references = [...app.matchAll(/\$\('([^']+)'\)/g)].map(match => match[1]);
 const missing = [...new Set(references.filter(id => !ids.has(id)))];
 assert.deepEqual(missing, [], 'JavaScript references missing HTML IDs: ' + missing.join(', '));
 for (const feature of ['saveAttendance','markAllPresent','loadAttendance','editStudent','markStudentLeft','loadRequests','loadUsers','publicCall']) {
