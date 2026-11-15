@@ -24,7 +24,10 @@ Last updated: 2026-11-15
 - [x] Registered account list; Admin view restricted to Teacher accounts.
 - [x] Super Admin contact details form.
 - [x] Supabase Edge Function admin-users deployed (version 7).
-- [x] SQL migrations 002, 003 and 004 applied and saved in repository.
+- [x] SQL migrations 002, 003, 004 and 005 applied and saved in repository.
+- [x] RLS helper functions moved to a non-exposed private schema; security advisor no longer reports those public SECURITY DEFINER functions.
+- [x] Added warning for imported students with missing joining dates.
+- [x] Added unsaved attendance change warning before changing page/date or signing out.
 - [x] GitHub Pages workflow now runs node --check app.js before publishing.
 
 ### Verified database state
