@@ -1,6 +1,22 @@
 // Privileged user management. The service-role key stays in Supabase secrets.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsPolicy, jsonResponse } from "../_shared/cors.ts";
+
+function corsPolicy(request: Request, methods = "POST, OPTIONS") {
+  const configured = (Deno.env.get("AMS_ALLOWED_ORIGINS") || "").split(",");
+  const allowed = new Set([...configured, "https://nkrishnakarthik2007-hash.github.io", "http://localhost:8000"].map(origin => origin.trim()).filter(Boolean));
+  const origin = request.headers.get("Origin");
+  const accepted = !origin || allowed.has(origin);
+  const headers = new Headers({"Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":methods,"Vary":"Origin"});
+  if (origin && accepted) headers.set("Access-Control-Allow-Origin", origin);
+  return {accepted, headers};
+}
+function jsonResponse(request: Request, body: unknown, status = 200, methods = "POST, OPTIONS") {
+  const {accepted, headers} = corsPolicy(request, methods);
+  headers.set("Content-Type","application/json; charset=utf-8");
+  if (!accepted) return new Response(JSON.stringify({error:"Origin is not allowed."}),{status:403,headers});
+  return new Response(JSON.stringify(body),{status,headers});
+}
+
 
 const loginEmail=(employeeId:string)=>`${employeeId.toUpperCase()}@login.nkkams.invalid`;
 const passwordIsStrong=(value:string)=>value.length>=8&&/[A-Z]/.test(value)&&/[a-z]/.test(value)&&/\d/.test(value)&&/[^A-Za-z0-9]/.test(value);
@@ -13,6 +29,22 @@ Deno.serve(async req=>{
   if(!policy.accepted)return json({error:"Origin is not allowed."},403);
   if(req.method!=="POST")return json({error:"Method not allowed"},405);
   const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  // One-time bootstrap: allowed only while the new project has no profiles.
+  if(body.action==="bootstrap_super_admin"){
+    const {count,error:countError}=await db.from("profiles").select("id",{count:"exact",head:true});
+    if(countError)return json({error:"Could not verify first-time setup status."},503);
+    if((count||0)>0)return json({error:"Initial administrator setup has already been completed. Sign in instead."},409);
+    const name=String(body.name||"").trim(),password=String(body.password||"");
+    if(!/^[A-Z0-9]{2,30}$/.test(employeeId))return json({error:"Employee ID must contain 2 to 30 letters or numbers."},400);
+    if(!name||name.length>100)return json({error:"Enter a valid administrator name."},400);
+    if(password.length<12||!/[A-Z]/.test(password)||!/[a-z]/.test(password)||!/[0-9]/.test(password)||!/[^A-Za-z0-9]/.test(password))return json({error:"Password must be at least 12 characters and include uppercase, lowercase, number, and special character."},400);
+    const {data:created,error:createError}=await db.auth.admin.createUser({email:loginEmail(employeeId),password,email_confirm:true,user_metadata:{employee_id:employeeId,name}});
+    if(createError)return json({error:/already registered|already exists|duplicate/i.test(createError.message)?"This Employee ID already has a login. Contact support.":"Could not create the administrator account. Try again."},400);
+    const {error:profileInsertError}=await db.from("profiles").insert({id:created.user.id,employee_id:employeeId,name,role:"super_admin",is_active:true});
+    if(profileInsertError){await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not save administrator profile. No account was retained."},500);}
+    return json({ok:true},201);
+  }
+
   const token=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"");
   const{data:{user},error:authError}=await db.auth.getUser(token);
   if(authError||!user)return json({error:"Sign in to continue."},401);
