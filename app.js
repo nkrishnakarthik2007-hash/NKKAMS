@@ -2,7 +2,7 @@
 (() => {
  const $=id=>document.getElementById(id), today=()=>new Date().toLocaleDateString('en-CA');
  const cfg=window.NKKAMS_CONFIG||{};
- let sb=null, user=null, profile=null, students=[], attendance={}, draftAttendance={}, holidays=[], pending=[];
+ let sb=null, user=null, profile=null, students=[], attendance={}, draftAttendance={}, holidays=[], pending=[], currentPage='dashboard';
  const say=(id,msg)=>{const el=$(id);if(el)el.textContent=msg};
  const localKey='nkkams-offline-queue-v1';
  const readQueue=()=>{try{return JSON.parse(localStorage.getItem(localKey)||'[]')}catch{return []}};
@@ -16,11 +16,12 @@
  function showWorkspace(){$('landingPage').classList.add('hidden');$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden')}
  function showLanding(){$('landingPage').classList.remove('hidden');$('loginGate').classList.add('hidden');$('appMain').classList.add('hidden')}
  $('landingSignIn').onclick=()=>{$('landingPage').classList.add('hidden');$('loginGate').classList.remove('hidden');$('loginEmployeeId').focus()};
- async function showPage(page){document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.page===page));document.querySelectorAll('[data-page-view]').forEach(x=>x.classList.toggle('hidden',x.dataset.pageView!==page));if(page==='attendance')await loadAttendance();if(page==='students')renderDirectory();if(page==='users')await loadUsers();if(page==='requests')await loadRequests();if(page==='help')await loadContacts();}
+ function hasUnsavedAttendance(){return JSON.stringify(draftAttendance)!==JSON.stringify(attendance)}
+ async function showPage(page){if(currentPage==='attendance'&&page!=='attendance'&&hasUnsavedAttendance()&&!confirm('You have unsaved attendance changes. Leave this page and discard them?'))return;currentPage=page;document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.page===page));document.querySelectorAll('[data-page-view]').forEach(x=>x.classList.toggle('hidden',x.dataset.pageView!==page));if(page==='attendance')await loadAttendance();if(page==='students')renderDirectory();if(page==='users')await loadUsers();if(page==='requests')await loadRequests();if(page==='help')await loadContacts();}
  document.querySelectorAll('.nav-link').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.page)));
  document.querySelectorAll('[data-open-page]').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.openPage)));
  showLanding();
- setInterval(tick,1000);connection();addEventListener('online',()=>{connection();syncQueue()});addEventListener('offline',connection);
+ setInterval(tick,1000);connection();addEventListener('online',connection);addEventListener('offline',connection);
  $('loginForm').onsubmit=async e=>{e.preventDefault();if(!sb){say('loginMessage','Admin setup is not complete. Add Supabase settings in config.js first.');return}
   const id=$('loginEmployeeId').value.trim(),password=$('loginPassword').value;
   $('loginSubmit').disabled=true;say('loginMessage','Signing in…');
@@ -31,7 +32,7 @@
    user=sessionData.user;
    const {data:myProfile}=await sb.from('profiles').select('role,name').eq('id',user.id).single();profile=myProfile;applyRoleUI();if(myProfile?.role!=='super_admin'&&myProfile?.role!=='admin')document.querySelector('#holidayForm').closest('.panel').classList.add('hidden');
    if(myProfile&&['super_admin','admin'].includes(myProfile.role)){$('userAdminPanel').classList.remove('hidden');document.querySelectorAll('.admin-nav').forEach(x=>x.classList.remove('hidden'))}
-   showWorkspace();$('logoutBtn').classList.remove('hidden');await load();await syncQueue();await showPage('dashboard');
+   showWorkspace();$('logoutBtn').classList.remove('hidden');await load();await showPage('dashboard');
   }catch(err){say('loginMessage',err.message||'Sign-in failed.');}finally{$('loginSubmit').disabled=false}
  };
  $('showBootstrap').onclick=()=> $('bootstrapForm').classList.toggle('hidden');
@@ -54,7 +55,7 @@
  $('addStudent').onclick=()=>{resetStudentForm();$('studentForm').classList.toggle('hidden')};$('cancelAdd').onclick=()=>{$('studentForm').classList.add('hidden');resetStudentForm()};$('cancelEdit').onclick=()=>{$('studentForm').classList.add('hidden');resetStudentForm()};$('directorySearch').oninput=renderDirectory;$('studentFilter').onchange=renderDirectory;
  $('studentForm').onsubmit=async e=>{e.preventDefault();const id=$('editingStudentId').value;const row={name:$('studentName').value.trim(),employee_id:$('employeeId').value.trim().toUpperCase(),joining_date:$('joiningDate').value||null,left_date:$('leftDate').value||null,is_active:!$('leftDate').value};if(!row.name||!row.employee_id||!row.joining_date){say('studentMessage','Name, Employee ID and joining date are required.');return}if(row.left_date&&row.left_date<row.joining_date){say('studentMessage','Leaving date cannot be before joining date.');return}try{const result=id?await sb.from('students').update(row).eq('id',id):await sb.from('students').insert(row);if(result.error)throw result.error;$('studentForm').classList.add('hidden');resetStudentForm();await load();renderDirectory();say('studentMessage','Student record saved. Existing attendance history is preserved.')}catch(err){say('studentMessage',err.message||'Could not save student')}};
  $('search').oninput=render;
- $('attendanceDate').value=today();$('attendanceDate').onchange=loadAttendance;
+ $('attendanceDate').value=today();$('attendanceDate').onchange=async()=>{if(hasUnsavedAttendance()&&!confirm('Discard unsaved attendance changes and open another date?')){$('attendanceDate').value=activeAttendanceDate;return}activeAttendanceDate=$('attendanceDate').value;await loadAttendance()};let activeAttendanceDate=today();
  $('exportCsv').onclick=()=>downloadDay();$('markAllPresent').onclick=markAllPresent;$('saveAttendance').onclick=saveAttendance;
  $('exportMonthly').onclick=()=>exportReport(false);$('exportIndividual').onclick=()=>exportReport(true);
  async function load(){if(!sb)return;say('saveStatus','Loading students…');const {data,error}=await sb.from('students').select('id,name,employee_id,joining_date,left_date,is_active').order('name');if(error){say('saveStatus',error.message);return}students=data||[];fillReports();renderDirectory();await loadAttendance();say('saveStatus',offline()?'Offline mode':'Synced');}
@@ -115,5 +116,6 @@
   catch(err){say('createUserMessage',err.message||'Account creation failed.')}finally{$('createUserSubmit').disabled=false}
  };
  async function start(){if(!cfg.url||!cfg.publishableKey||!window.supabase){say('loginMessage','Supabase connection could not start. Refresh the page or check the connection.');return}sb=window.supabase.createClient(cfg.url,cfg.publishableKey);try{const contacts=await publicCall('public_admin_contacts');if($('loginAdminContacts'))$('loginAdminContacts').innerHTML=(contacts.contacts||[]).map(c=>'<div class="contact-card"><strong>'+esc(c.name)+'</strong><div>'+esc(c.whatsapp||'')+'</div><div>'+esc(c.email||'')+'</div></div>').join('')}catch(e){console.warn('Contact lookup unavailable',e)}try{const check=await fetch(cfg.url+'/functions/v1/admin-users',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey},body:JSON.stringify({action:'bootstrap_status'})});const state=await check.json();if(check.ok&&state.bootstrap_available){$('showBootstrap').classList.remove('hidden');$('setupNote').classList.remove('hidden')}}catch(e){console.warn('Could not check first-time setup status',e)}const {data}=await sb.auth.getSession();if(data.session){user=data.session.user;showWorkspace();$('logoutBtn').classList.remove('hidden');const {data:myProfile}=await sb.from('profiles').select('role,name').eq('id',user.id).single();profile=myProfile;applyRoleUI();if(myProfile&&['super_admin','admin'].includes(myProfile.role)){$('userAdminPanel').classList.remove('hidden');document.querySelectorAll('.admin-nav').forEach(x=>x.classList.remove('hidden'))}if(myProfile?.role!=='super_admin'&&myProfile?.role!=='admin')document.querySelector('#holidayForm').closest('.panel').classList.add('hidden');await load();await showPage('dashboard')}}
+ addEventListener('beforeunload',e=>{if(currentPage==='attendance'&&hasUnsavedAttendance()){e.preventDefault();e.returnValue=''}});
  start();
 })();
