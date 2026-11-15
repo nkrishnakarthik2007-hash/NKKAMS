@@ -40,6 +40,7 @@ NKKAMS uses GitHub Pages for its static website and Supabase for authentication,
 2. 002_student_lifecycle_and_reset_requests.sql — staff student editing, reset request table, Super Admin contact.
 3. 003_unique_pending_reset_requests.sql — one pending reset request per account.
 4. 004_enforce_attendance_eligibility.sql — server-side student date eligibility and holiday checks.
+5. 005_move_rls_helpers_to_private_schema.sql — move SECURITY DEFINER RLS helpers out of the exposed public schema.
 
 Migrations 002–004 have been applied to the NKKAMS Supabase project. Existing student and attendance rows are not deleted by these migrations.
 
