@@ -11,7 +11,7 @@
  function connection(){ $('connection').innerHTML='<i></i>'+(offline()?'Offline · changes saved locally':'Online'); }
  function tick(){const d=new Date();$('clock').textContent=d.toLocaleTimeString();$('today').textContent=d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
  function theme(){document.documentElement.dataset.theme=localStorage.getItem('nkkams-theme')||'light'}
- $('themeToggle').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('nkkams-theme',t);theme()};
+ $('themeToggle').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('nkkams-theme',t);theme()};const savedLayout=localStorage.getItem('nkkams-layout')||'auto';document.documentElement.dataset.layout=savedLayout;$('layoutToggle').textContent=savedLayout==='mobile'?'Desktop view':'Mobile view';$('layoutToggle').onclick=()=>{const next=document.documentElement.dataset.layout==='mobile'?'auto':'mobile';document.documentElement.dataset.layout=next;localStorage.setItem('nkkams-layout',next);$('layoutToggle').textContent=next==='mobile'?'Desktop view':'Mobile view'};
  theme();tick();
  function showWorkspace(){$('landingPage').classList.add('hidden');$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden')}
  function showLanding(){$('landingPage').classList.remove('hidden');$('loginGate').classList.add('hidden');$('appMain').classList.add('hidden')}
