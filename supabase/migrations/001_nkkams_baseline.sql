@@ -7,6 +7,11 @@ create table public.profiles (
  name text not null,
  role public.nkkams_role not null default 'teacher',
  is_active boolean not null default true,
+ email text,
+ phone text,
+ created_by uuid references public.profiles(id),
+ updated_by uuid references public.profiles(id),
+ updated_at timestamptz not null default now(),
  created_at timestamptz not null default now()
 );
 create table public.students (
@@ -40,7 +45,9 @@ create table public.admin_contacts (
  name text not null,
  whatsapp text,
  email text,
- is_active boolean not null default true
+ is_active boolean not null default true,
+ created_by uuid references public.profiles(id),
+ updated_by uuid references public.profiles(id)
 );
 create table public.audit_events (
  id bigint generated always as identity primary key,
@@ -83,3 +90,20 @@ create policy "audit admin read" on public.audit_events for select to authentica
 create index attendance_date_idx on public.attendance(attendance_date);
 create index attendance_student_date_idx on public.attendance(student_id,attendance_date);
 create index students_name_idx on public.students(name);
+
+create or replace function public.update_managed_profile(
+ p_actor_id uuid,p_employee_id text,p_name text,p_email text,p_phone text
+) returns void language plpgsql security definer set search_path=public
+as $$
+begin
+ if not exists(select 1 from public.profiles p where p.id=p_actor_id and p.is_active and p.role in ('super_admin','admin')) then
+  raise exception 'Not authorized';
+ end if;
+ update public.profiles set name=p_name,email=p_email,phone=p_phone,updated_by=p_actor_id,updated_at=now()
+ where employee_id=upper(p_employee_id);
+ if not found then raise exception 'User not found'; end if;
+ update public.admin_contacts set name=p_name,email=p_email,whatsapp=p_phone,updated_by=p_actor_id
+ where employee_id=upper(p_employee_id);
+end $$;
+revoke execute on function public.update_managed_profile(uuid,text,text,text,text) from public,anon,authenticated;
+grant execute on function public.update_managed_profile(uuid,text,text,text,text) to service_role;
