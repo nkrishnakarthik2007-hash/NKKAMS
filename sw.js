@@ -1,4 +1,4 @@
-const CACHE='nkkams-shell-v15';
+const CACHE='nkkams-shell-v16';
 const ASSETS=['./','./index.html','./styles.css','./modern.css','./modern.css?v=9','./app.js','./app.js?v=18','./config.js','./manifest.webmanifest'];
 self.addEventListener('install',event=>{
   self.skipWaiting();
