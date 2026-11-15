@@ -173,3 +173,23 @@ html[data-layout=mobile] .app-shell{max-width:720px;padding:8px 12px}html[data-l
 .contact-preferred{display:inline-block;margin-left:5px;padding:2px 6px;border-radius:6px;background:#dcfce7;color:#166534;font-size:10px;font-weight:750}
 @media(max-width:700px){.admin-contact-hint{grid-column:1}}
 [data-theme=dark] .admin-contact-hint{background:#172f55;border-color:#315b91;color:#bfdbfe}
+
+
+/* Attendance controls: aligned desktop row, stacked mobile layout */
+.attendance-toolbar{display:grid!important;grid-template-columns:minmax(0,42fr) minmax(0,28fr) minmax(0,30fr);align-items:end;gap:14px;margin:20px 0 18px;padding:17px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 14px rgba(15,23,42,.045)}
+.attendance-toolbar .attendance-control{display:flex;flex-direction:column;justify-content:flex-end;gap:7px;min-width:0;margin:0;color:#334155;font-size:13px;font-weight:700}
+.attendance-toolbar .attendance-control>span{display:block;line-height:1.25}
+.attendance-toolbar .attendance-control>input,.attendance-toolbar .attendance-control>select,.attendance-toolbar .attendance-control .custom-date-wrap{width:100%;min-width:0;height:44px}
+.attendance-toolbar .attendance-control>input,.attendance-toolbar .attendance-control>select,.attendance-toolbar .attendance-control .custom-date-wrap>input{height:44px;min-height:44px;border:1px solid #d7e0ed;border-radius:11px;padding:0 13px;background:#fff;color:#172b4d;font:500 14px inherit;box-shadow:0 1px 2px rgba(15,23,42,.025)}
+.attendance-toolbar .attendance-control>select{padding-right:36px}
+.attendance-toolbar .attendance-date .custom-date-wrap{display:flex;align-items:stretch;gap:7px}
+.attendance-toolbar .attendance-date .custom-date-wrap>input{flex:1;width:0;min-width:0}
+.attendance-toolbar .attendance-date .date-picker-trigger{flex:0 0 46px;width:46px;height:44px;min-height:44px;padding:0;display:grid;place-items:center;border:1px solid #d7e0ed;border-radius:11px;background:#f8fafc;color:#2454d6;font-size:19px}
+.attendance-toolbar .attendance-control>input:focus,.attendance-toolbar .attendance-control>select:focus,.attendance-toolbar .attendance-date .custom-date-wrap>input:focus{outline:3px solid rgba(37,99,235,.13);border-color:#6390f4}
+.attendance-toolbar .attendance-control>input::placeholder{color:#94a3b8;font-weight:400}
+@media(min-width:701px) and (max-width:980px){.attendance-toolbar{grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr);gap:12px}.attendance-toolbar .attendance-search{grid-column:1/-1}.attendance-toolbar .attendance-date{grid-column:2}}
+@media(max-width:700px){.attendance-toolbar{grid-template-columns:minmax(0,1fr);gap:13px;margin:16px 0;padding:14px;border-radius:14px}.attendance-toolbar .attendance-search,.attendance-toolbar .attendance-filter,.attendance-toolbar .attendance-date{grid-column:1;width:100%}.attendance-toolbar .attendance-control>input,.attendance-toolbar .attendance-control>select,.attendance-toolbar .attendance-control .custom-date-wrap{height:46px}.attendance-toolbar .attendance-control>input,.attendance-toolbar .attendance-control>select,.attendance-toolbar .attendance-control .custom-date-wrap>input{height:46px;min-height:46px}.attendance-toolbar .attendance-date .date-picker-trigger{height:46px;min-height:46px}}
+[data-theme=dark] .attendance-toolbar{background:#172338;border-color:#29384f;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+[data-theme=dark] .attendance-toolbar .attendance-control{color:#e5edf8}
+[data-theme=dark] .attendance-toolbar .attendance-control>input,[data-theme=dark] .attendance-toolbar .attendance-control>select,[data-theme=dark] .attendance-toolbar .attendance-date .custom-date-wrap>input{background:#1e2d44;color:#e5edf8;border-color:#3b4c65}
+[data-theme=dark] .attendance-toolbar .attendance-date .date-picker-trigger{background:#1e2d44;color:#93b4ff;border-color:#3b4c65}
