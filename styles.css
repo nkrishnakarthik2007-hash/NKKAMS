@@ -193,3 +193,34 @@ html[data-layout=mobile] .app-shell{max-width:720px;padding:8px 12px}html[data-l
 [data-theme=dark] .attendance-toolbar .attendance-control{color:#e5edf8}
 [data-theme=dark] .attendance-toolbar .attendance-control>input,[data-theme=dark] .attendance-toolbar .attendance-control>select,[data-theme=dark] .attendance-toolbar .attendance-date .custom-date-wrap>input{background:#1e2d44;color:#e5edf8;border-color:#3b4c65}
 [data-theme=dark] .attendance-toolbar .attendance-date .date-picker-trigger{background:#1e2d44;color:#93b4ff;border-color:#3b4c65}
+
+
+/* Final attendance toolbar refinement */
+.attendance-toolbar{display:grid!important;grid-template-columns:minmax(0,42fr) minmax(0,28fr) minmax(0,30fr)!important;align-items:end!important;gap:14px!important;width:100%;min-width:0;box-sizing:border-box}
+.attendance-toolbar>.attendance-control{display:flex!important;flex-direction:column!important;align-self:stretch;justify-content:flex-end;min-width:0;width:100%;margin:0!important}
+.attendance-toolbar .attendance-search-wrap{position:relative;display:flex;align-items:center;width:100%;min-width:0;height:44px}
+.attendance-toolbar .attendance-search-wrap .attendance-search-icon{position:absolute;left:13px;z-index:1;color:#71829c;font-size:23px;line-height:1;pointer-events:none}
+.attendance-toolbar .attendance-search-wrap>input{width:100%;min-width:0;height:44px;padding:0 13px 0 42px;border:1px solid #d7e0ed;border-radius:11px;background:#fff;color:#172b4d;font:inherit;font-size:14px;box-shadow:0 1px 2px rgba(15,23,42,.025)}
+.attendance-toolbar .attendance-filter .global-dropdown-wrap{width:100%;min-width:0}
+.attendance-toolbar .attendance-filter .global-dropdown-trigger{width:100%;height:44px;min-height:44px;text-align:left;border:1px solid #d7e0ed;border-radius:11px;padding:0 38px 0 13px;background:#fff;color:#172b4d;font-size:14px}
+.attendance-toolbar .attendance-date .custom-date-wrap{width:100%;min-width:0;display:flex;align-items:stretch;gap:7px}
+.attendance-toolbar .attendance-date .custom-date-wrap>input{flex:1 1 0;width:0;min-width:0;height:44px;min-height:44px;padding:0 12px}
+.attendance-toolbar .attendance-date .date-picker-trigger{flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0}
+.attendance-toolbar .attendance-search-wrap>input:focus,.attendance-toolbar .attendance-filter .global-dropdown-trigger:focus,.attendance-toolbar .attendance-date .custom-date-wrap>input:focus{outline:3px solid rgba(37,99,235,.13);border-color:#6390f4}
+@media(min-width:981px){.attendance-toolbar{grid-template-columns:minmax(0,42fr) minmax(0,28fr) minmax(0,30fr)!important}}
+@media(min-width:701px) and (max-width:980px){.attendance-toolbar{grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr)!important}.attendance-toolbar .attendance-search{grid-column:1/-1}.attendance-toolbar .attendance-filter,.attendance-toolbar .attendance-date{grid-column:auto}}
+@media(max-width:700px){
+ .attendance-toolbar{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:13px!important;padding:16px!important;margin:16px 0!important;width:100%;max-width:100%;overflow:visible}
+ .attendance-toolbar>.attendance-control,.attendance-toolbar .attendance-search,.attendance-toolbar .attendance-filter,.attendance-toolbar .attendance-date{grid-column:1!important;width:100%!important;min-width:0}
+ .attendance-toolbar .attendance-search-wrap,.attendance-toolbar .attendance-search-wrap>input,.attendance-toolbar .attendance-filter .global-dropdown-trigger{height:46px;min-height:46px}
+ .attendance-toolbar .attendance-date .custom-date-wrap{height:46px}
+ .attendance-toolbar .attendance-date .custom-date-wrap>input,.attendance-toolbar .attendance-date .date-picker-trigger{height:46px;min-height:46px}
+ .attendance-toolbar .attendance-date .date-picker-trigger{flex-basis:46px;width:46px}
+}
+/* Let visitors choose mobile layout before signing in; in-workspace control stays in the account menu on phones */
+@media(max-width:700px){
+ body:has(#appMain.hidden) .top-actions #layoutToggle{display:inline-flex!important;align-items:center;white-space:nowrap;font-size:11px;padding:8px 10px}
+ body:has(#appMain.hidden) .top-actions #themeToggle{display:inline-flex!important}
+}
+[data-theme=dark] .attendance-toolbar .attendance-search-wrap>input,[data-theme=dark] .attendance-toolbar .attendance-filter .global-dropdown-trigger{background:#1e2d44;color:#e5edf8;border-color:#3b4c65}
+[data-theme=dark] .attendance-toolbar .attendance-search-wrap .attendance-search-icon{color:#a8b7cb}
