@@ -12,7 +12,13 @@
  function tick(){const d=new Date();$('clock').textContent=d.toLocaleTimeString();$('today').textContent=d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
  function theme(){document.documentElement.dataset.theme=localStorage.getItem('nkkams-theme')||'light'}
  $('themeToggle').onclick=()=>{const t=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('nkkams-theme',t);theme()};
- theme();tick();setInterval(tick,1000);connection();addEventListener('online',()=>{connection();syncQueue()});addEventListener('offline',connection);
+ theme();tick();
+ function showWorkspace(){$('landingPage').classList.add('hidden');$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden')}
+ function showLanding(){$('landingPage').classList.remove('hidden');$('loginGate').classList.add('hidden');$('appMain').classList.add('hidden')}
+ $('landingSignIn').onclick=()=>{$('landingPage').classList.add('hidden');$('loginGate').classList.remove('hidden');$('loginEmployeeId').focus()};
+ document.querySelectorAll('.nav-link').forEach(btn=>btn.addEventListener('click',()=>{const page=btn.dataset.page;document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x===btn));document.querySelectorAll('[data-page-view]').forEach(x=>x.classList.toggle('hidden',x.dataset.pageView!==page));if(page==='students')renderDirectory()}));
+ showLanding();
+ setInterval(tick,1000);connection();addEventListener('online',()=>{connection();syncQueue()});addEventListener('offline',connection);
  $('loginForm').onsubmit=async e=>{e.preventDefault();if(!sb){say('loginMessage','Admin setup is not complete. Add Supabase settings in config.js first.');return}
   const id=$('loginEmployeeId').value.trim(),password=$('loginPassword').value;
   $('loginSubmit').disabled=true;say('loginMessage','Signing in…');
@@ -22,8 +28,8 @@
    const {data:sessionData,error:setError}=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(setError)throw setError;
    user=sessionData.user;
    const {data:myProfile}=await sb.from('profiles').select('role').eq('id',user.id).single();
-   if(myProfile&&['super_admin','admin'].includes(myProfile.role))$('userAdminPanel').classList.remove('hidden');
-   $('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');await load();await syncQueue();
+   if(myProfile&&['super_admin','admin'].includes(myProfile.role)){$('userAdminPanel').classList.remove('hidden');document.querySelector('.admin-nav').classList.remove('hidden')}
+   showWorkspace();$('logoutBtn').classList.remove('hidden');await load();await syncQueue();
   }catch(err){say('loginMessage',err.message||'Sign-in failed.');}finally{$('loginSubmit').disabled=false}
  };
  $('showBootstrap').onclick=()=> $('bootstrapForm').classList.toggle('hidden');
@@ -38,11 +44,11 @@
    const loginResponse=await fetch(cfg.url+'/functions/v1/nkkams-login',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey},body:JSON.stringify({employee_id,password})});
    const loginData=await loginResponse.json();if(!loginResponse.ok)throw new Error(loginData.error||'Account created. Please sign in using your new password.');
    const {data:sessionData,error:setError}=await sb.auth.setSession({access_token:loginData.access_token,refresh_token:loginData.refresh_token});if(setError)throw setError;
-   user=sessionData.user;$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');$('userAdminPanel').classList.remove('hidden');await load();
+   user=sessionData.user;showWorkspace();$('logoutBtn').classList.remove('hidden');$('userAdminPanel').classList.remove('hidden');document.querySelector('.admin-nav').classList.remove('hidden');await load();
   }catch(err){say('bootstrapMessage',err.message||'Administrator setup failed.');}
   finally{$('bootstrapSubmit').disabled=false}
  };
- $('logoutBtn').onclick=async()=>{await sb?.auth.signOut();user=null;$('userAdminPanel').classList.add('hidden');$('appMain').classList.add('hidden');$('loginGate').classList.remove('hidden');$('logoutBtn').classList.add('hidden')};
+ $('logoutBtn').onclick=async()=>{await sb?.auth.signOut();user=null;$('userAdminPanel').classList.add('hidden');$('logoutBtn').classList.add('hidden');showLanding()};
  $('addStudent').onclick=()=>$('studentForm').classList.toggle('hidden');$('cancelAdd').onclick=()=>$('studentForm').classList.add('hidden');
  $('studentForm').onsubmit=async e=>{e.preventDefault();const row={name:$('studentName').value.trim(),employee_id:$('employeeId').value.trim(),joining_date:$('joiningDate').value||null};try{const {error}=await sb.from('students').insert(row);if(error)throw error;$('studentForm').reset();$('studentForm').classList.add('hidden');await load()}catch(err){alert(err.message)}};
  $('search').oninput=render;
@@ -54,8 +60,9 @@
   if(error){say('saveStatus',error.message);return}students=data||[];
   const d=$('attendanceDate').value;const {data:a,error:ae}=await sb.from('attendance').select('student_id,status').eq('attendance_date',d);
   if(ae){say('saveStatus',ae.message);return}attendance=Object.fromEntries((a||[]).map(x=>[x.student_id,x.status]));
-  fillReports();render();say('saveStatus',offline()?'Offline mode':'Synced');
+  fillReports();render();renderDirectory();say('saveStatus',offline()?'Offline mode':'Synced');
  }
+ function renderDirectory(){$('directoryRows').innerHTML=students.map(s=>'<tr><td><strong>'+esc(s.name)+'</strong></td><td>'+esc(s.employee_id)+'</td><td>'+esc(s.joining_date||'Not set')+'</td></tr>').join('')||'<tr><td colspan="3" class="empty">No students added yet.</td></tr>'}
  function render(){const q=$('search').value.toLowerCase();const rows=students.filter(s=>(s.name+' '+s.employee_id).toLowerCase().includes(q));
   $('studentRows').innerHTML=rows.map(s=>{const eligible=(!s.joining_date||s.joining_date<=$('attendanceDate').value)&&(!s.left_date||s.left_date>=$('attendanceDate').value);const st=attendance[s.id]||'';
    return '<tr><td><strong>'+esc(s.name)+'</strong>'+(eligible?'':' <button type="button" class="join-warning" title="This attendance date is outside the student&#39;s joining or leaving dates" aria-label="Show joining date warning" data-name="'+esc(s.name)+'" data-joining="'+(s.joining_date||'Not set')+'" data-left="'+(s.left_date||'Not set')+'">⚠</button>')+'</td><td>'+esc(s.employee_id)+'</td><td><div class="attendance-buttons"><button data-id="'+s.id+'" data-status="present" class="'+(st==='present'?'selected-present':'')+'">Present</button><button data-id="'+s.id+'" data-status="absent" class="'+(st==='absent'?'selected-absent':'')+'">Absent</button></div></td></tr>'}).join('')||'<tr><td colspan="3" class="empty">No students found.</td></tr>';
@@ -92,6 +99,6 @@
   try{const response=await fetch(cfg.url+'/functions/v1/admin-users',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({action:'create_user',employee_id,name,password,role,email,phone})});const result=await response.json();if(!response.ok)throw new Error(result.error||'Could not create account.');$('createUserForm').reset();contactFields.classList.add('hidden');updatePasswordRules();say('createUserMessage','Account created successfully. Share the Employee ID and temporary password privately with that employee.');}
   catch(err){say('createUserMessage',err.message||'Account creation failed.')}finally{$('createUserSubmit').disabled=false}
  };
- async function start(){if(!cfg.url||!cfg.publishableKey||!window.supabase){say('loginMessage','Supabase connection is not configured. Follow README setup steps.');return}sb=window.supabase.createClient(cfg.url,cfg.publishableKey);const {data}=await sb.auth.getSession();if(data.session){user=data.session.user;$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');await load()}}
+ async function start(){if(!cfg.url||!cfg.publishableKey||!window.supabase){say('loginMessage','Supabase connection could not start. Refresh the page or check the connection.');return}sb=window.supabase.createClient(cfg.url,cfg.publishableKey);const {data}=await sb.auth.getSession();if(data.session){user=data.session.user;showWorkspace();$('logoutBtn').classList.remove('hidden');const {data:profile}=await sb.from('profiles').select('role').eq('id',user.id).single();if(profile&&['super_admin','admin'].includes(profile.role)){$('userAdminPanel').classList.remove('hidden');document.querySelector('.admin-nav').classList.remove('hidden')}await load()}}
  start();
 })();
