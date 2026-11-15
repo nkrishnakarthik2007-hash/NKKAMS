@@ -20,7 +20,10 @@
    const data=await response.json();if(!response.ok)throw new Error(data.error||'Sign-in failed.');
    if(!data?.access_token||!data?.refresh_token)throw new Error('Sign-in response was incomplete.');
    const {data:sessionData,error:setError}=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(setError)throw setError;
-   user=sessionData.user;$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');await load();
+   user=sessionData.user;
+   const {data:myProfile}=await sb.from('profiles').select('role').eq('id',user.id).single();
+   if(myProfile&&['super_admin','admin'].includes(myProfile.role))$('userAdminPanel').classList.remove('hidden');
+   $('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');await load();await syncQueue();
   }catch(err){say('loginMessage',err.message||'Sign-in failed.');}finally{$('loginSubmit').disabled=false}
  };
  $('logoutBtn').onclick=async()=>{await sb?.auth.signOut();user=null;$('appMain').classList.add('hidden');$('loginGate').classList.remove('hidden');$('logoutBtn').classList.add('hidden')};
@@ -59,6 +62,20 @@
  const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=individual?[{wch:16},{wch:18},{wch:20}]:[{wch:18},{wch:28},{wch:12},{wch:12},{wch:16}];ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:individual?2:4}}];XLSX.utils.book_append_sheet(wb,ws,individual?'Student report':'Monthly summary');XLSX.writeFile(wb,individual?'NKKAMS_'+list[0].employee_id+'_'+y+'_'+m+'.xlsx':'NKKAMS_monthly_'+y+'_'+m+'.xlsx');say('reportMessage','Excel report downloaded.')}
  catch(e){say('reportMessage',e.message||'Could not create report')}}
  function downloadDay(){const rows=[['Employee ID','Name','Date','Status'],...students.map(s=>[s.employee_id,s.name,$('attendanceDate').value,attendance[s.id]||'Not marked'])];const csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='NKKAMS_attendance_'+$('attendanceDate').value+'.csv';a.click();URL.revokeObjectURL(a.href)}
+
+ const roleSelect=$('newUserRole'),contactFields=$('adminContactFields'),newPassword=$('newUserPassword');
+ const passwordChecks=p=>({length:p.length>=12,upper:/[A-Z]/.test(p),lower:/[a-z]/.test(p),number:/[0-9]/.test(p),symbol:/[^A-Za-z0-9]/.test(p)});
+ function updatePasswordRules(){const c=passwordChecks(newPassword.value);Object.entries(c).forEach(([k,v])=>{const el=$('passwordRules').querySelector('[data-rule="'+k+'"]');if(el){el.classList.toggle('valid',v);el.textContent=(v?'✓ ':'○ ')+({length:'12 characters',upper:'Uppercase letter',lower:'Lowercase letter',number:'Number',symbol:'Special character'}[k]);}});return Object.values(c).every(Boolean)}
+ roleSelect.onchange=()=>contactFields.classList.toggle('hidden',roleSelect.value!=='admin');
+ newPassword.oninput=updatePasswordRules;
+ $('createUserForm').onsubmit=async e=>{e.preventDefault();if(!updatePasswordRules()){say('createUserMessage','Password does not meet all requirements.');return}
+  const role=roleSelect.value,employee_id=$('newUserEmployeeId').value.trim().toUpperCase(),name=$('newUserName').value.trim(),password=newPassword.value,email=$('newUserEmail').value.trim(),phone=$('newUserPhone').value.trim();
+  if(role==='admin'&&(!email||!phone)){say('createUserMessage','Admin accounts need a contact email and phone number.');return}
+  const {data:{session}}=await sb.auth.getSession();if(!session){say('createUserMessage','Your session expired. Sign in again.');return}
+  $('createUserSubmit').disabled=true;say('createUserMessage','Creating account…');
+  try{const response=await fetch(cfg.url+'/functions/v1/admin-users',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({action:'create_user',employee_id,name,password,role,email,phone})});const result=await response.json();if(!response.ok)throw new Error(result.error||'Could not create account.');$('createUserForm').reset();contactFields.classList.add('hidden');updatePasswordRules();say('createUserMessage','Account created successfully. Share the Employee ID and temporary password privately with that employee.');}
+  catch(err){say('createUserMessage',err.message||'Account creation failed.')}finally{$('createUserSubmit').disabled=false}
+ };
  async function start(){if(!cfg.url||!cfg.publishableKey||!window.supabase){say('loginMessage','Supabase connection is not configured. Follow README setup steps.');return}sb=window.supabase.createClient(cfg.url,cfg.publishableKey);const {data}=await sb.auth.getSession();if(data.session){user=data.session.user;$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');await load()}}
  start();
 })();
