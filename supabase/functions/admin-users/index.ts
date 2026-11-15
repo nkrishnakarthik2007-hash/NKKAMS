@@ -37,6 +37,22 @@ Deno.serve(async req=>{
     if(error)return json({error:"Could not check setup status."},503);
     return json({bootstrap_available:(count||0)===0});
   }
+  if(body.action==="public_admin_contacts"){
+    const {data,error}=await db.from("admin_contacts").select("name,whatsapp,email").eq("is_active",true).order("name");
+    if(error)return json({error:"Could not load administrator contacts."},503);
+    return json({contacts:data||[]});
+  }
+  if(body.action==="submit_reset_request"){
+    const id=String(body.employee_id||"").trim().toUpperCase();
+    const message=String(body.message||"").trim().slice(0,500);
+    if(!/^[A-Z0-9]{2,30}$/.test(id))return json({error:"Enter a valid Employee ID."},400);
+    const {data:person}=await db.from("profiles").select("id,employee_id").eq("employee_id",id).maybeSingle();
+    if(person){
+      const {error}=await db.from("password_reset_requests").insert({requester_user_id:person.id,employee_id:person.employee_id,message});
+      if(error && !/duplicate|unique/i.test(error.message))return json({error:"Could not submit the request. Please contact an administrator."},503);
+    }
+    return json({ok:true,message:"If the Employee ID is registered, the administrator has received your request."},202);
+  }
   // One-time bootstrap: allowed only while the new project has no profiles.
   if(body.action==="bootstrap_super_admin"){
     const {count,error:countError}=await db.from("profiles").select("id",{count:"exact",head:true});
@@ -59,6 +75,36 @@ Deno.serve(async req=>{
   const{data:me,error:profileError}=await db.from("profiles").select("role,is_active").eq("id",user.id).single();
   if(profileError||!me?.is_active||!["admin","super_admin"].includes(me.role))return json({error:"You do not have permission to manage accounts."},403);
   const isSuper=me.role==="super_admin";
+  if(body.action==="list_users"){
+    const {data,error}=await db.from("profiles").select("employee_id,name,role,is_active,email,phone,created_at").order("created_at");
+    if(error)return json({error:"Could not load user accounts."},503);
+    return json({users:data||[]});
+  }
+  if(body.action==="list_reset_requests"){
+    const {data,error}=await db.from("password_reset_requests").select("id,employee_id,message,status,created_at").order("created_at",{ascending:false});
+    if(error)return json({error:"Could not load reset requests."},503);
+    return json({requests:data||[]});
+  }
+  if(body.action==="update_reset_request"){
+    const requestId=String(body.request_id||"");
+    const status=String(body.status||"");
+    if(!/^[0-9a-f-]{36}$/i.test(requestId)||!["pending","reviewed","resolved","rejected"].includes(status))return json({error:"Invalid reset request update."},400);
+    const {error}=await db.from("password_reset_requests").update({status,reviewed_by:user.id,reviewed_at:new Date().toISOString()}).eq("id",requestId);
+    if(error)return json({error:"Could not update the request."},400);
+    return json({ok:true});
+  }
+  if(body.action==="reset_user_password"){
+    const targetId=String(body.employee_id||"").trim().toUpperCase();
+    const password=String(body.password||"");
+    if(password.length<12||!/[A-Z]/.test(password)||!/[a-z]/.test(password)||!/[0-9]/.test(password)||!/[^A-Za-z0-9]/.test(password))return json({error:"Password must be at least 12 characters and include uppercase, lowercase, number and symbol."},400);
+    const {data:target,error}=await db.from("profiles").select("id,role").eq("employee_id",targetId).maybeSingle();
+    if(error||!target)return json({error:"User not found."},404);
+    if(!isSuper&&target.role!=="teacher")return json({error:"Admins can reset Teacher accounts only."},403);
+    if(target.role==="super_admin")return json({error:"The Super Admin password cannot be reset from this screen."},403);
+    const {error:updateError}=await db.auth.admin.updateUserById(target.id,{password,ban_duration:"none"});
+    if(updateError)return json({error:"Could not reset the account password."},400);
+    return json({ok:true});
+  }
   if(body.action==="create_user"){
     const role=body.role;
     if(!["admin","teacher"].includes(role||""))return json({error:"Choose Teacher or Admin."},400);
