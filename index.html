@@ -7,7 +7,7 @@
   <meta name="description" content="NKKAMS Attendance Management System">
   <title>NKKAMS | Attendance Management</title>
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./modern.css?v=8">
+  <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./modern.css?v=9">
 </head>
 <body>
   <div class="app-shell">
@@ -46,7 +46,7 @@
         </form>
       </div>
     </section>
-    <main id="appMain" class="hidden"><nav class="workspace-nav"><button class="nav-link active" data-page="dashboard">⌂ Overview</button><button class="nav-link" data-page="attendance">▦ Mark attendance</button><button class="nav-link" data-page="students">♙ Students</button><button class="nav-link" data-page="reports">▤ Reports</button><button class="nav-link admin-nav hidden" data-page="requests">↻ Reset requests</button><button class="nav-link admin-nav hidden" data-page="users">⚙ User management</button><button class="nav-link" data-page="help">ⓘ Password help</button></nav><div class="view-page" data-page-view="dashboard">
+    <main id="appMain" class="hidden"><nav class="workspace-nav"><button class="nav-link active" data-page="dashboard">⌂ Overview</button><button class="nav-link" data-page="attendance">▦ Mark attendance</button><button class="nav-link" data-page="students">♙ Students</button><button class="nav-link" data-page="reports">▤ Reports</button><button class="nav-link admin-nav hidden" data-page="holidays">☼ Holidays</button><button class="nav-link admin-nav hidden" data-page="requests">↻ Reset requests</button><button class="nav-link admin-nav hidden" data-page="users">⚙ User management</button><button class="nav-link" data-page="help">ⓘ Password help</button></nav><div class="view-page" data-page-view="dashboard">
       <section class="welcome"><div><p class="eyebrow">WORKSPACE</p><h1>Attendance overview</h1><p class="muted">Today's attendance workspace.</p></div><div class="date-card"><span id="clock">--:--:--</span><small id="today">Loading date…</small></div></section>
       <section class="stats">
         <article class="stat-card"><span class="stat-icon blue">👥</span><div><small>Total students</small><strong id="totalCount">0</strong></div></article>
@@ -64,11 +64,9 @@
           <div class="table-wrap"><table><thead><tr><th>EMPLOYEE ID</th><th>NAME</th><th>ATTENDANCE</th></tr></thead><tbody id="studentRows"><tr><td colspan="3" class="empty">Loading students…</td></tr></tbody></table></div>
           <div class="panel-footer"><span id="saveStatus" class="muted">Waiting for data…</span><div class="button-row"></div></div>
         </section>
-        <section class="panel"><div class="panel-heading"><div><h2>Holidays & non-working days</h2><p class="muted">Attendance cannot be marked on a holiday.</p></div></div>
-          <form id="holidayForm" class="add-form"><label class="date-input"><span>Date</span><input id="holidayDate" type="date" required></label><input id="holidayReason" placeholder="Holiday name or reason" maxlength="120"><button class="primary" type="submit">Add holiday</button></form><div id="holidayList" class="holiday-list"></div>
-        </section>
+        
       </div>
-      <div class="view-page hidden" data-page-view="students"><section class="panel"><div class="panel-heading"><div><h2>Student management</h2><p class="muted">Edit joining dates, record leaving dates and preserve old attendance.</p></div><button id="addStudent" class="primary" type="button">＋ Add student</button></div>
+      <div class="view-page hidden" data-page-view="holidays"><section class="panel"><div class="panel-heading"><div><h2>Holidays & non-working days</h2><p class="muted">Manage official holidays and non-working days here. Sundays are not automatically holidays.</p></div></div><form id="holidayForm" class="add-form"><label class="date-input"><span>Date</span><input id="holidayDate" type="date" required></label><select id="holidayType"><option value="holiday">Holiday</option><option value="non_working">Non-working day</option></select><input id="holidayReason" placeholder="Name or reason (optional)" maxlength="120"><button class="primary" type="submit">Add date</button></form><div id="holidayList" class="holiday-list"></div></section></div><div class="view-page hidden" data-page-view="students"><section class="panel"><div class="panel-heading"><div><h2>Student management</h2><p class="muted">Edit joining dates, record leaving dates and preserve old attendance.</p></div><button id="addStudent" class="primary" type="button">＋ Add student</button></div>
         <form id="studentForm" class="add-form hidden"><input id="studentName" placeholder="Student name" maxlength="100" required><input id="employeeId" placeholder="Employee ID" maxlength="30" required><label class="date-input"><span>Joining date</span><input id="joiningDate" type="date" required></label><label class="date-input"><span>Leaving date (optional)</span><input id="leftDate" type="date"></label><button class="primary" type="submit" id="studentSave">Save student</button><button class="secondary" type="button" id="cancelAdd">Cancel</button><button class="secondary hidden" type="button" id="cancelEdit">Cancel edit</button><input id="editingStudentId" type="hidden"><p id="studentMessage" class="form-message"></p></form>
         <div class="toolbar"><input id="directorySearch" type="search" placeholder="Search students by name or Employee ID"><select id="studentFilter"><option value="all">All students</option><option value="active">Active</option><option value="left">Left</option></select></div>
         <div class="table-wrap"><table><thead><tr><th>STUDENT</th><th>EMPLOYEE ID</th><th>JOINING DATE</th><th>LEAVING DATE</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="directoryRows"></tbody></table></div></section></div><div class="view-page hidden" data-page-view="users"><section class="panel admin-panel hidden" id="userAdminPanel">
