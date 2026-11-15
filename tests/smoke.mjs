@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 const html = readFileSync('index.html', 'utf8');
 const app = readFileSync('app.js', 'utf8');
-const requiredPages = ['dashboard','attendance','students','reports','requests','users','help'];
+const requiredPages = ['dashboard','attendance','students','reports','requests','users','help','holidays'];
 for (const page of requiredPages) {
   assert.ok(html.includes('data-page-view="' + page + '"'), 'Missing page: ' + page);
   assert.ok(html.includes('data-page="' + page + '"'), 'Missing navigation item: ' + page);
