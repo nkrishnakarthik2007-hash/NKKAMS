@@ -1,0 +1,11 @@
+create schema if not exists private;
+revoke all on schema private from public, anon;
+grant usage on schema private to authenticated;
+alter function public.nkkams_is_active_user() set schema private;
+alter function public.nkkams_is_admin() set schema private;
+alter function private.nkkams_is_active_user() set search_path='';
+alter function private.nkkams_is_admin() set search_path='';
+revoke execute on function private.nkkams_is_active_user() from public, anon;
+revoke execute on function private.nkkams_is_admin() from public, anon;
+grant execute on function private.nkkams_is_active_user() to authenticated;
+grant execute on function private.nkkams_is_admin() to authenticated;
