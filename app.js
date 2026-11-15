@@ -16,7 +16,8 @@
  $('loginForm').onsubmit=async e=>{e.preventDefault();if(!sb){say('loginMessage','Admin setup is not complete. Add Supabase settings in config.js first.');return}
   const id=$('loginEmployeeId').value.trim(),password=$('loginPassword').value;
   $('loginSubmit').disabled=true;say('loginMessage','Signing in…');
-  try{const {data,error}=await sb.rpc('nkkams_sign_in',{p_employee_id:id,p_password:password});if(error)throw error;
+  try{const response=await fetch(cfg.url+'/functions/v1/nkkams-login',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey},body:JSON.stringify({employee_id:id,password})});
+   const data=await response.json();if(!response.ok)throw new Error(data.error||'Sign-in failed.');
    if(!data?.access_token||!data?.refresh_token)throw new Error('Sign-in response was incomplete.');
    const {data:sessionData,error:setError}=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(setError)throw setError;
    user=sessionData.user;$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');await load();
