@@ -26,7 +26,7 @@
    $('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');await load();await syncQueue();
   }catch(err){say('loginMessage',err.message||'Sign-in failed.');}finally{$('loginSubmit').disabled=false}
  };
- $('logoutBtn').onclick=async()=>{await sb?.auth.signOut();user=null;$('appMain').classList.add('hidden');$('loginGate').classList.remove('hidden');$('logoutBtn').classList.add('hidden')};
+ $('logoutBtn').onclick=async()=>{await sb?.auth.signOut();user=null;$('userAdminPanel').classList.add('hidden');$('appMain').classList.add('hidden');$('loginGate').classList.remove('hidden');$('logoutBtn').classList.add('hidden')};
  $('addStudent').onclick=()=>$('studentForm').classList.toggle('hidden');$('cancelAdd').onclick=()=>$('studentForm').classList.add('hidden');
  $('studentForm').onsubmit=async e=>{e.preventDefault();const row={name:$('studentName').value.trim(),employee_id:$('employeeId').value.trim(),joining_date:$('joiningDate').value||null};try{const {error}=await sb.from('students').insert(row);if(error)throw error;$('studentForm').reset();$('studentForm').classList.add('hidden');await load()}catch(err){alert(err.message)}};
  $('search').oninput=render;
