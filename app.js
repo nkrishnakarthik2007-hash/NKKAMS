@@ -26,6 +26,22 @@
    $('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');await load();await syncQueue();
   }catch(err){say('loginMessage',err.message||'Sign-in failed.');}finally{$('loginSubmit').disabled=false}
  };
+ $('showBootstrap').onclick=()=> $('bootstrapForm').classList.toggle('hidden');
+ $('bootstrapForm').onsubmit=async e=>{
+  e.preventDefault();
+  const employee_id=$('bootstrapEmployeeId').value.trim().toUpperCase(),name=$('bootstrapName').value.trim(),password=$('bootstrapPassword').value;
+  if(password.length<12){say('bootstrapMessage','Use at least 12 characters for your new password.');return}
+  $('bootstrapSubmit').disabled=true;say('bootstrapMessage','Creating your first administrator account…');
+  try{
+   const response=await fetch(cfg.url+'/functions/v1/admin-users',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey},body:JSON.stringify({action:'bootstrap_super_admin',employee_id,name,password})});
+   const result=await response.json();if(!response.ok)throw new Error(result.error||'Could not create administrator account.');
+   const loginResponse=await fetch(cfg.url+'/functions/v1/nkkams-login',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey},body:JSON.stringify({employee_id,password})});
+   const loginData=await loginResponse.json();if(!loginResponse.ok)throw new Error(loginData.error||'Account created. Please sign in using your new password.');
+   const {data:sessionData,error:setError}=await sb.auth.setSession({access_token:loginData.access_token,refresh_token:loginData.refresh_token});if(setError)throw setError;
+   user=sessionData.user;$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');$('logoutBtn').classList.remove('hidden');$('userAdminPanel').classList.remove('hidden');await load();
+  }catch(err){say('bootstrapMessage',err.message||'Administrator setup failed.');}
+  finally{$('bootstrapSubmit').disabled=false}
+ };
  $('logoutBtn').onclick=async()=>{await sb?.auth.signOut();user=null;$('userAdminPanel').classList.add('hidden');$('appMain').classList.add('hidden');$('loginGate').classList.remove('hidden');$('logoutBtn').classList.add('hidden')};
  $('addStudent').onclick=()=>$('studentForm').classList.toggle('hidden');$('cancelAdd').onclick=()=>$('studentForm').classList.add('hidden');
  $('studentForm').onsubmit=async e=>{e.preventDefault();const row={name:$('studentName').value.trim(),employee_id:$('employeeId').value.trim(),joining_date:$('joiningDate').value||null};try{const {error}=await sb.from('students').insert(row);if(error)throw error;$('studentForm').reset();$('studentForm').classList.add('hidden');await load()}catch(err){alert(err.message)}};
