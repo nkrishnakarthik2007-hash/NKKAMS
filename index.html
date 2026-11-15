@@ -7,7 +7,7 @@
   <meta name="description" content="NKKAMS Attendance Management System">
   <title>NKKAMS | Attendance Management</title>
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./modern.css?v=5">
+  <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./modern.css?v=6">
 </head>
 <body>
   <div class="app-shell">
@@ -67,7 +67,7 @@
         </section>
       </div>
       <div class="view-page hidden" data-page-view="students"><section class="panel"><div class="panel-heading"><div><h2>Student management</h2><p class="muted">Edit joining dates, record leaving dates and preserve old attendance.</p></div><button id="addStudent" class="primary" type="button">＋ Add student</button></div>
-        <form id="studentForm" class="add-form hidden"><input id="studentName" placeholder="Student name" maxlength="100" required><input id="employeeId" placeholder="Employee ID" maxlength="30" required><label class="date-input"><span>Joining date</span><input id="joiningDate" type="date" required></label><label class="date-input"><span>Leaving date (optional)</span><input id="leftDate" type="date"></label><button class="primary" type="submit" id="studentSave">Save student</button><button class="secondary" type="button" id="cancelAdd">Cancel</button><button class="secondary hidden" type="button" id="cancelEdit">Cancel edit</button><input id="editingStudentId" type="hidden"></form>
+        <form id="studentForm" class="add-form hidden"><input id="studentName" placeholder="Student name" maxlength="100" required><input id="employeeId" placeholder="Employee ID" maxlength="30" required><label class="date-input"><span>Joining date</span><input id="joiningDate" type="date" required></label><label class="date-input"><span>Leaving date (optional)</span><input id="leftDate" type="date"></label><button class="primary" type="submit" id="studentSave">Save student</button><button class="secondary" type="button" id="cancelAdd">Cancel</button><button class="secondary hidden" type="button" id="cancelEdit">Cancel edit</button><input id="editingStudentId" type="hidden"><p id="studentMessage" class="form-message"></p></form>
         <div class="toolbar"><input id="directorySearch" type="search" placeholder="Search students by name or Employee ID"><select id="studentFilter"><option value="all">All students</option><option value="active">Active</option><option value="left">Left</option></select></div>
         <div class="table-wrap"><table><thead><tr><th>STUDENT</th><th>EMPLOYEE ID</th><th>JOINING DATE</th><th>LEAVING DATE</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="directoryRows"></tbody></table></div></section></div><div class="view-page hidden" data-page-view="users"><section class="panel admin-panel hidden" id="userAdminPanel">
         <div class="panel-heading"><div><h2>Create user account</h2><p class="muted">Add a Teacher or Admin with a separate sign-in password.</p></div></div>
@@ -99,5 +99,5 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./config.js?v=3"></script><script src="./app.js?v=7"></script><script src="./register-sw.js"></script>
+  <script src="./config.js?v=3"></script><script src="./app.js?v=8"></script><script src="./register-sw.js"></script>
 </body></html>
