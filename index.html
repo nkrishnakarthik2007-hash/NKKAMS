@@ -7,7 +7,7 @@
   <meta name="description" content="NKKAMS Attendance Management System">
   <title>NKKAMS | Attendance Management</title>
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./modern.css?v=4">
+  <link rel="stylesheet" href="./styles.css"><link rel="stylesheet" href="./modern.css?v=5">
 </head>
 <body>
   <div class="app-shell">
@@ -82,8 +82,7 @@
           <label class="password-field">Temporary password<input id="newUserPassword" type="password" minlength="12" required autocomplete="new-password" placeholder="At least 12 characters"></label>
           <div class="password-rules" id="passwordRules"><span data-rule="length">○ 12 characters</span><span data-rule="upper">○ Uppercase letter</span><span data-rule="lower">○ Lowercase letter</span><span data-rule="number">○ Number</span><span data-rule="symbol">○ Special character</span></div>
           <button class="primary" type="submit" id="createUserSubmit">Create account</button>
-          <p id="createUserMessage" class="form-message" role="status"></p></form><h3 class="subheading">Registered accounts</h3><div class="table-wrap"><table><thead><tr><th>EMPLOYEE ID</th><th>NAME</th><th>ROLE</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="userRows"></tbody></table></div><p id="userListMessage" class="form-message"></p><form class="hidden">
-        </form>
+          <p id="createUserMessage" class="form-message" role="status"></p></form><h3 class="subheading">Registered accounts</h3><div class="table-wrap"><table><thead><tr><th>EMPLOYEE ID</th><th>NAME</th><th>ROLE</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="userRows"></tbody></table></div><p id="userListMessage" class="form-message"></p>
       </section>
       </div><div class="view-page hidden" data-page-view="requests"><section class="panel"><div class="panel-heading"><div><h2>Password reset requests</h2><p class="muted">Review requests from users who cannot sign in.</p></div><button id="refreshRequests" class="secondary" type="button">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>EMPLOYEE ID</th><th>REQUEST</th><th>DATE</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody id="resetRequestRows"></tbody></table></div><p id="requestMessage" class="form-message"></p></section></div>
       <div class="view-page hidden" data-page-view="reports"><section class="panel report-panel"><div class="panel-heading"><div><h2>Attendance reports</h2><p class="muted">Export monthly and individual Excel reports.</p></div></div>
@@ -100,5 +99,5 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./config.js?v=3"></script><script src="./app.js?v=6"></script><script src="./register-sw.js"></script>
+  <script src="./config.js?v=3"></script><script src="./app.js?v=7"></script><script src="./register-sw.js"></script>
 </body></html>
