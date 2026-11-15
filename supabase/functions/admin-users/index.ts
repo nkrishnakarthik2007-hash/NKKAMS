@@ -76,7 +76,9 @@ Deno.serve(async req=>{
   if(profileError||!me?.is_active||!["admin","super_admin"].includes(me.role))return json({error:"You do not have permission to manage accounts."},403);
   const isSuper=me.role==="super_admin";
   if(body.action==="list_users"){
-    const {data,error}=await db.from("profiles").select("employee_id,name,role,is_active,email,phone,created_at").order("created_at");
+    let query=db.from("profiles").select("employee_id,name,role,is_active,email,phone,created_at").order("created_at");
+    if(!isSuper)query=query.eq("role","teacher");
+    const {data,error}=await query;
     if(error)return json({error:"Could not load user accounts."},503);
     return json({users:data||[]});
   }
