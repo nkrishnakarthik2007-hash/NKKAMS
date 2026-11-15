@@ -295,3 +295,6 @@ html[data-layout=mobile] .app-shell{max-width:720px;padding:8px 12px}html[data-l
 .date-choice-menu{z-index:10004!important;pointer-events:auto!important;isolation:isolate;max-height:min(260px,55vh)!important;overscroll-behavior:contain}
 .date-choice-option{position:relative;z-index:1;display:block;width:100%;min-height:34px;pointer-events:auto!important;cursor:pointer}
 .date-grid{position:relative;z-index:0}
+
+/* Layout is selected automatically from viewport width; no manual switch */
+#layoutToggle,#mobileLayoutToggle{display:none!important}
