@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243a">
+  <title>NKKAMS | Attendance Management</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./"><span class="brand-mark">N</span><span><strong>NKKAMS</strong><small>Attendance Management System</small></span></a>
+      <div class="top-actions"><span id="connection" class="connection">● Checking connection</span><button id="themeToggle" class="icon-button" aria-label="Toggle theme">◐</button></div>
+    </header>
+    <main>
+      <section class="welcome">
+        <div><p class="eyebrow">WORKSPACE</p><h1>Attendance overview</h1><p class="muted">A fresh, simple workspace for daily attendance.</p></div>
+        <div class="date-card"><span id="clock">--:--:--</span><small id="today">Loading date…</small></div>
+      </section>
+      <section class="stats">
+        <article class="stat-card"><span class="stat-icon blue">👥</span><div><small>Total students</small><strong id="totalCount">0</strong></div></article>
+        <article class="stat-card"><span class="stat-icon green">✓</span><div><small>Present today</small><strong id="presentCount">0</strong></div></article>
+        <article class="stat-card"><span class="stat-icon red">—</span><div><small>Absent today</small><strong id="absentCount">0</strong></div></article>
+      </section>
+      <section class="panel">
+        <div class="panel-heading"><div><h2>Daily attendance</h2><p class="muted">Add names and mark attendance. Changes are saved on this device.</p></div><button id="addStudent" class="primary">＋ Add student</button></div>
+        <div class="toolbar"><input id="search" type="search" placeholder="Search by name or employee ID"><input id="attendanceDate" type="date"></div>
+        <form id="studentForm" class="add-form hidden"><input id="studentName" placeholder="Student name" required><input id="employeeId" placeholder="Employee ID" required><button class="primary" type="submit">Save student</button><button class="secondary" type="button" id="cancelAdd">Cancel</button></form>
+        <div class="table-wrap"><table><thead><tr><th>STUDENT</th><th>EMPLOYEE ID</th><th>STATUS</th></tr></thead><tbody id="studentRows"><tr><td colspan="3" class="empty">No students yet. Use “Add student” to begin.</td></tr></tbody></table></div>
+        <div class="panel-footer"><span id="saveStatus" class="muted">Saved locally on this device</span><button id="exportCsv" class="secondary">↓ Export CSV</button></div>
+      </section>
+      <p class="footnote">Starter version · Cloud login and multi-user sync will be connected after the Supabase setup.</p>
+    </main>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
