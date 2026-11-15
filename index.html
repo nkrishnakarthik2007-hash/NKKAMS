@@ -76,8 +76,9 @@
           <label>Full name<input id="newUserName" maxlength="100" required placeholder="Employee full name"></label>
           <label>Role<select id="newUserRole"><option value="teacher">Teacher</option><option value="admin">Admin</option></select></label>
           <div id="adminContactFields" class="admin-contact-fields hidden">
-            <label>Contact email<input id="newUserEmail" type="email" placeholder="admin@example.com"></label>
-            <label>Phone / WhatsApp<input id="newUserPhone" type="tel" placeholder="+91..."></label>
+            <p class="admin-contact-hint">Phone / WhatsApp is preferred. Enter a phone number, an email address, or both. Only one contact method is required.</p>
+            <label>Phone / WhatsApp <span class="contact-preferred">Preferred</span><input id="newUserPhone" type="tel" placeholder="+91..."></label>
+            <label>Contact email <span class="muted">(Optional)</span><input id="newUserEmail" type="email" placeholder="admin@example.com"></label>
           </div>
           <label class="password-field">Temporary password<input id="newUserPassword" type="password" minlength="12" required autocomplete="new-password" placeholder="At least 12 characters"></label>
           <div class="password-rules" id="passwordRules"><span data-rule="length">○ 12 characters</span><span data-rule="upper">○ Uppercase letter</span><span data-rule="lower">○ Lowercase letter</span><span data-rule="number">○ Number</span><span data-rule="symbol">○ Special character</span></div>
@@ -95,5 +96,5 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="./config.js?v=3"></script><script src="./app.js?v=44"></script><script src="./register-sw.js"></script>
+  <script src="./config.js?v=3"></script><script src="./app.js?v=45"></script><script src="./register-sw.js"></script>
 </body></html>
