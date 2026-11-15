@@ -31,8 +31,10 @@
         <form id="loginForm" class="form-stack">
           <label for="loginEmployeeId">Employee ID</label><input id="loginEmployeeId" autocomplete="username" placeholder="Enter Employee ID" required>
           <label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter password" required>
-          <button class="primary full" type="submit" id="loginSubmit">Sign in</button><p id="loginMessage" class="form-message" role="status"></p><button id="forgotToggle" class="text-button" type="button">Forgot password?</button><div id="forgotPanel" class="hidden"><div id="loginAdminContacts" class="contact-list"></div><form id="forgotForm" class="form-stack"><label for="forgotEmployeeId">Your Employee ID</label><input id="forgotEmployeeId" required maxlength="30" placeholder="Enter Employee ID"><label for="forgotMessage">Message (optional)</label><textarea id="forgotMessage" rows="2" maxlength="500" placeholder="Tell the admin what happened"></textarea><button class="secondary full" type="submit">Submit password reset request</button><p id="forgotResult" class="form-message"></p></form></div>
+          <button class="primary full" type="submit" id="loginSubmit">Sign in</button><p id="loginMessage" class="form-message" role="status"></p>
         </form>
+        <button id="forgotToggle" class="text-button" type="button">Forgot password?</button>
+        <div id="forgotPanel" class="hidden"><div id="loginAdminContacts" class="contact-list"></div><form id="forgotForm" class="form-stack"><label for="forgotEmployeeId">Your Employee ID</label><input id="forgotEmployeeId" required maxlength="30" placeholder="Enter Employee ID"><label for="forgotMessage">Message (optional)</label><textarea id="forgotMessage" rows="2" maxlength="500" placeholder="Tell the admin what happened"></textarea><button class="secondary full" type="submit">Submit password reset request</button><p id="forgotResult" class="form-message"></p></form></div>
         <div class="login-note hidden" id="setupNote"><strong>First-time setup?</strong> This is a new database. Create your Super Admin account once before signing in.</div>
         <button id="showBootstrap" class="secondary full hidden" type="button">Create first Super Admin account</button>
         <form id="bootstrapForm" class="form-stack hidden">
@@ -99,5 +101,5 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./config.js?v=3"></script><script src="./app.js?v=13"></script><script src="./register-sw.js"></script>
+  <script src="./config.js?v=3"></script><script src="./app.js?v=14"></script><script src="./register-sw.js"></script>
 </body></html>
