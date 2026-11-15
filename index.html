@@ -57,7 +57,7 @@
         <section class="panel">
           <div class="panel-heading"><div><h2>Mark attendance</h2><p class="muted">Choose a date, select Present or Absent, then save.</p></div><button id="markAllPresent" class="secondary" type="button">✓ Mark all present</button></div>
           <div class="toolbar"><input id="search" type="search" placeholder="Search name or Employee ID"><label class="date-input"><span>Attendance date (past or future)</span><input id="attendanceDate" type="date"></label></div>
-          <div id="holidayBanner" class="notice hidden"></div>
+          <div id="joinDateWarning" class="notice hidden"></div><div id="holidayBanner" class="notice hidden"></div>
           <div class="attendance-summary"><span>Total eligible <strong id="eligibleCount">0</strong></span><span>Present <strong id="draftPresent">0</strong></span><span>Absent <strong id="draftAbsent">0</strong></span><span>Not marked <strong id="draftMissing">0</strong></span></div>
           <div class="table-wrap"><table><thead><tr><th>S.NO</th><th>STUDENT</th><th>EMPLOYEE ID</th><th>ATTENDANCE</th><th>SAVED STATUS</th></tr></thead><tbody id="studentRows"><tr><td colspan="5" class="empty">Loading students…</td></tr></tbody></table></div>
           <div class="panel-footer"><span id="saveStatus" class="muted">Waiting for data…</span><div class="button-row"><button id="exportCsv" class="secondary" type="button">↓ Export CSV</button><button id="saveAttendance" class="primary" type="button">Save attendance</button></div></div>
@@ -99,5 +99,5 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./config.js?v=3"></script><script src="./app.js?v=11"></script><script src="./register-sw.js"></script>
+  <script src="./config.js?v=3"></script><script src="./app.js?v=12"></script><script src="./register-sw.js"></script>
 </body></html>
