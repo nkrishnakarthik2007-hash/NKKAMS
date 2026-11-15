@@ -168,3 +168,8 @@ html[data-layout=mobile] .app-shell{max-width:720px;padding:8px 12px}html[data-l
 .date-pop-actions{margin-top:7px!important;padding-top:7px!important}
 .date-pop-actions button{min-height:29px!important;padding:6px 10px!important;font-size:11px!important}
 @media(max-width:700px){.custom-date-pop{width:min(280px,calc(100vw - 20px))!important;padding:8px!important}.date-pop-head{grid-template-columns:26px minmax(0,1fr) 62px 26px auto!important;gap:3px!important}.date-pop-head>button:not(.date-choice-trigger){min-height:28px!important}.date-choice-trigger{min-height:28px!important;font-size:10px!important}.date-cell{min-height:27px!important;font-size:10px!important}.date-week span{font-size:8px!important}}
+
+.admin-contact-hint{grid-column:1/-1;margin:0;padding:10px 12px;border:1px solid #bfdbfe;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:12px;line-height:1.5}
+.contact-preferred{display:inline-block;margin-left:5px;padding:2px 6px;border-radius:6px;background:#dcfce7;color:#166534;font-size:10px;font-weight:750}
+@media(max-width:700px){.admin-contact-hint{grid-column:1}}
+[data-theme=dark] .admin-contact-hint{background:#172f55;border-color:#315b91;color:#bfdbfe}
