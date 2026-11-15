@@ -13,3 +13,5 @@
 - Added public admin contact display, Forgot Password request form, admin queue and protected password reset.
 - Added user account list and Super Admin contact editing.
 - Added migration files 002–004 and JavaScript syntax check to Pages workflow.
+- Moved RLS helper functions to the private schema and tightened database-side attendance rules.
+- Added warnings for missing imported student joining dates and unsaved attendance edits.
