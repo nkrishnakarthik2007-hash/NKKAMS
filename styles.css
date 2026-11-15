@@ -283,3 +283,15 @@ html[data-layout=mobile] .app-shell{max-width:720px;padding:8px 12px}html[data-l
 [data-theme=dark] .holiday-record{background:#172338;border-color:#29384f}
 [data-theme=dark] .holiday-record-copy strong{color:#e5edf8}
 [data-theme=dark] .holiday-empty{background:#172338;border-color:#34445c;color:#a8b7cb}
+
+
+/* Fix month/year calendar dropdown stacking and click targets */
+.custom-date-pop{z-index:10000!important;overflow:visible!important}
+.date-pop-head{position:relative;z-index:1}
+.date-choice-wrap{z-index:2}
+.date-choice-wrap:has(.date-choice-menu:not(.hidden)){z-index:10003}
+.date-choice-trigger{display:flex!important;align-items:center;justify-content:space-between;gap:8px;min-height:40px;position:relative;z-index:2;pointer-events:auto}
+.date-choice-trigger::after{margin-left:auto;transform:rotate(45deg) translateY(-2px)}
+.date-choice-menu{z-index:10004!important;pointer-events:auto!important;isolation:isolate;max-height:min(260px,55vh)!important;overscroll-behavior:contain}
+.date-choice-option{position:relative;z-index:1;display:block;width:100%;min-height:34px;pointer-events:auto!important;cursor:pointer}
+.date-grid{position:relative;z-index:0}
