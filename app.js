@@ -124,7 +124,7 @@
  newPassword.oninput=updatePasswordRules;
  $('createUserForm').onsubmit=async e=>{e.preventDefault();if(!updatePasswordRules()){say('createUserMessage','Password does not meet all requirements.');return}
   const role=roleSelect.value,employee_id=$('newUserEmployeeId').value.trim().toUpperCase(),name=$('newUserName').value.trim(),password=newPassword.value,email=$('newUserEmail').value.trim(),phone=$('newUserPhone').value.trim();
-  if(role==='admin'&&(!email||!phone)){say('createUserMessage','Admin accounts need a contact email and phone number.');return}
+  if(role==='admin'&&!email&&!phone){say('createUserMessage','For an Admin account, enter at least one contact method: phone/WhatsApp or email. Phone is preferred.');return}
   const {data:{session}}=await sb.auth.getSession();if(!session){say('createUserMessage','Your session expired. Sign in again.');return}
   $('createUserSubmit').disabled=true;say('createUserMessage','Creating account…');
   try{const response=await fetch(cfg.url+'/functions/v1/admin-users',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey,'Authorization':'Bearer '+session.access_token},body:JSON.stringify({action:'create_user',employee_id,name,password,role,email,phone})});const result=await response.json();if(!response.ok)throw new Error(result.error||'Could not create account.');$('createUserForm').reset();contactFields.classList.add('hidden');updatePasswordRules();say('createUserMessage','Account created successfully. Share the Employee ID and temporary password privately with that employee.');}
