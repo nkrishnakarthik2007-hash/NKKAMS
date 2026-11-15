@@ -1,30 +1,34 @@
 # NKKAMS — Attendance Management System
 
-A lightweight, mobile-friendly attendance app designed for GitHub Pages with Supabase for authentication and data.
+NKKAMS is a mobile-friendly attendance app using GitHub Pages for the website and Supabase for authentication and data.
 
-## Deployment
-1. Repository → **Settings → Pages**.
-2. Under **Build and deployment**, choose **Deploy from a branch**.
-3. Select branch **main**, folder **/(root)**, then Save.
-4. Your website URL will be: https://nkrishnakarthik2007-hash.github.io/NKKAMS/
+## Live website
+https://nkrishnakarthik2007-hash.github.io/NKKAMS/
 
-## Supabase setup
-The site is configured to use your Supabase project. The browser receives only the public publishable key. Never place a service-role key in this repository.
+Every push to `main` automatically starts the GitHub Pages deployment workflow in `.github/workflows/pages.yml`.
 
-**Important:** the old public tables were reset. The database must be rebuilt and its security policies tested before this app can be used with real employee or attendance records. Do not create production users until the secure sign-in function, role checks, and RLS policies are in place.
+## Connected services
+- Supabase project: `dggokugqqeddfydcjvpb`
+- Browser configuration: `config.js` contains only the public Supabase publishable key. Never put a service-role key in this repository.
+- Edge Functions: `nkkams-login` and `admin-users`.
 
-## Current starter capabilities
-- Responsive login shell and dashboard
-- Theme switch without page reload
+## Current features
+- Employee ID and password sign-in
+- Role-aware account creation for Teacher and Admin accounts
+- Live password strength checks in the account form
+- Responsive dashboard and mobile layout
 - Live clock and current date
-- Daily attendance marking
-- Local queue for offline marks, with online sync attempt
-- Monthly summary and individual Excel export
-- Mobile-friendly student list and search
+- Daily attendance marking and student search
+- Local offline attendance queue with sync when online
+- Monthly attendance summary and individual monthly Excel exports
+- Theme switch without page reload
 
-## Important implementation notes
-- This repository is a starter frontend, not a production-ready deployment.
-- The SQL migration and secure account provisioning / sign-in Edge Function must be installed and tested before enabling user accounts.
-- Offline changes are stored in this browser's local storage. They are not encrypted and should not be used on shared devices. Resolve conflicts and test sync reliability before operational use.
-- The password strength indicator and admin user-management screens need to be implemented alongside server-side account controls.
-- Excel exports use SheetJS from a CDN; an internet connection is required to load the workbook library unless it is bundled locally.
+## Database
+The baseline schema is in `supabase/migrations/001_nkkams_baseline.sql`. Row Level Security is enabled on the application tables. The previous administrator Auth account was retained and linked to the new `profiles` table so the same sign-in can be used.
+
+## Important limitations before production use
+- Test login and account creation with real users before relying on the system for official attendance.
+- Offline marks are stored in browser local storage on that device. They are not encrypted, and concurrent edits on multiple devices need a conflict policy.
+- Excel export uses SheetJS from a CDN, so the export library needs internet access.
+- Passwords are never stored in plain text. The system does not compare one user's password with another user's password; each employee must receive and keep a private password.
+- This is the first rebuild release. More requested modules (holiday management, full user list/edit screens, audit/history navigation, and richer reporting) still need implementation and testing.
