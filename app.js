@@ -30,7 +30,7 @@
    if(!data?.access_token||!data?.refresh_token)throw new Error('Sign-in response was incomplete.');
    const {data:sessionData,error:setError}=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(setError)throw setError;
    user=sessionData.user;
-   const {data:myProfile}=await sb.from('profiles').select('role,name').eq('id',user.id).single();profile=myProfile;applyRoleUI();if(myProfile?.role!=='super_admin'&&myProfile?.role!=='admin')document.querySelector('#holidayForm').closest('.panel').classList.add('hidden');
+   const {data:myProfile}=await sb.from('profiles').select('role,name').eq('id',user.id).single();profile=myProfile;applyRoleUI();
    if(myProfile&&['super_admin','admin'].includes(myProfile.role)){$('userAdminPanel').classList.remove('hidden');document.querySelectorAll('.admin-nav').forEach(x=>x.classList.remove('hidden'))}
    showWorkspace();$('logoutBtn').classList.remove('hidden');await load();await showPage('dashboard');
   }catch(err){say('loginMessage',err.message||'Sign-in failed.');}finally{$('loginSubmit').disabled=false}
