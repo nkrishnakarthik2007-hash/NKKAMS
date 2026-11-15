@@ -19,7 +19,7 @@ function jsonResponse(request: Request, body: unknown, status = 200, methods = "
 
 
 const loginEmail=(employeeId:string)=>`${employeeId.toUpperCase()}@login.nkkams.invalid`;
-const passwordIsStrong=(value:string)=>value.length>=8&&/[A-Z]/.test(value)&&/[a-z]/.test(value)&&/\d/.test(value)&&/[^A-Za-z0-9]/.test(value);
+const passwordIsStrong=(value:string)=>value.length>=12&&/[A-Z]/.test(value)&&/[a-z]/.test(value)&&/\d/.test(value)&&/[^A-Za-z0-9]/.test(value);
 const duplicateIdMessage="An account already uses this Employee ID. Enter a unique Employee ID.";
 
 Deno.serve(async req=>{
