@@ -106,6 +106,20 @@
       <p class="footnote">NKKAMS · Attendance made effortless.<br>Made with ♥ by N. Krishna Karthik · Developer</p>
     </div></div></main>
   </div>
+  <script>
+  // Normalize the workspace DOM: every page must be a sibling inside the content column.
+  (() => {
+    const main = document.getElementById('appMain');
+    const layout = main?.querySelector('.workspace-layout');
+    const sidebar = layout?.querySelector(':scope > .workspace-nav');
+    const content = layout?.querySelector(':scope > .workspace-content');
+    if (!main || !layout || !sidebar || !content) return;
+    const pages = [...main.querySelectorAll('.view-page')];
+    const footer = main.querySelector('.footnote');
+    content.replaceChildren(...pages, ...(footer ? [footer] : []));
+    layout.replaceChildren(sidebar, content);
+  })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
   <script src="./config.js?v=3"></script><script src="./app.js?v=74"></script><script src="./register-sw.js"></script>
