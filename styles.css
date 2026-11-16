@@ -176,7 +176,7 @@ html[data-layout=mobile] .app-shell{max-width:720px;padding:8px 12px}html[data-l
 
 
 /* Attendance controls: aligned desktop row, stacked mobile layout */
-.attendance-toolbar{display:grid!important;grid-template-columns:minmax(0,42fr) minmax(0,28fr) minmax(0,30fr);align-items:end;gap:14px;margin:20px 0 18px;padding:17px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 14px rgba(15,23,42,.045)}
+.attendance-toolbar{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));align-items:end;gap:14px;margin:20px 0 18px;padding:17px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 14px rgba(15,23,42,.045)}
 .attendance-toolbar .attendance-control{display:flex;flex-direction:column;justify-content:flex-end;gap:7px;min-width:0;margin:0;color:#334155;font-size:13px;font-weight:700}
 .attendance-toolbar .attendance-control>span{display:block;line-height:1.25}
 .attendance-toolbar .attendance-control>input,.attendance-toolbar .attendance-control>select,.attendance-toolbar .attendance-control .custom-date-wrap{width:100%;min-width:0;height:44px}
