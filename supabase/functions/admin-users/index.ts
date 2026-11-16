@@ -160,12 +160,15 @@ Deno.serve(async req=>{
     const candidateMap=new Map<string,unknown[]>();
     for(const c of candidateRows||[]){const list=candidateMap.get(c.organization_id)||[];list.push({id:c.id,employee_id:c.employee_id,name:c.name,role:c.role});candidateMap.set(c.organization_id,list);}
     const result=await Promise.all((orgs||[]).map(async o=>{
-      const [students,batches,users]=await Promise.all([
+      const [students,batches,users,attendance,present,absent]=await Promise.all([
         db.from("students").select("id",{count:"exact",head:true}).eq("organization_id",o.id),
         db.from("batches").select("id",{count:"exact",head:true}).eq("organization_id",o.id),
-        db.from("profiles").select("id",{count:"exact",head:true}).eq("organization_id",o.id)
+        db.from("profiles").select("id",{count:"exact",head:true}).eq("organization_id",o.id),
+        db.from("attendance").select("id",{count:"exact",head:true}).eq("organization_id",o.id),
+        db.from("attendance").select("id",{count:"exact",head:true}).eq("organization_id",o.id).eq("status","present"),
+        db.from("attendance").select("id",{count:"exact",head:true}).eq("organization_id",o.id).eq("status","absent")
       ]);
-      return {...o,head:headMap.get(o.head_user_id)||null,candidates:candidateMap.get(o.id)||[],student_count:students.count||0,batch_count:batches.count||0,user_count:users.count||0};
+      return {...o,head:headMap.get(o.head_user_id)||null,candidates:candidateMap.get(o.id)||[],student_count:students.count||0,batch_count:batches.count||0,user_count:users.count||0,attendance_count:attendance.count||0,present_count:present.count||0,absent_count:absent.count||0};
     }));
     return json({organizations:result});
   }
