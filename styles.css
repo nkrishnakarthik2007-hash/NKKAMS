@@ -309,3 +309,7 @@ button:disabled{cursor:not-allowed}
 .report-controls label{min-width:0}
 .report-controls input[type="date"],.report-controls .custom-date-input{width:100%;min-width:0;min-height:44px;cursor:pointer}
 @media(max-width:700px){.report-controls{grid-template-columns:minmax(0,1fr)}}
+
+/* Authenticated workspace must never leak through the sign-in screen. */
+#appMain.hidden{display:none!important}
+@media(max-width:700px){body:has(#appMain.hidden) .mobile-bottom-nav,body:has(#appMain.hidden) .mobile-more-menu,body:has(#appMain.hidden) .mobile-menu-toggle,body:has(#appMain.hidden) .mobile-account-menu{display:none!important}body:has(#appMain.hidden) .login-wrap{padding-top:82px;padding-bottom:24px;min-height:calc(100dvh - 64px)}body:has(#appMain.hidden) .login-card{width:100%;max-width:520px;margin:0 auto;border-radius:18px}}
