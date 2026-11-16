@@ -48,12 +48,13 @@ Current live roles:
 
 ## Current deployed backend versions
 
-- `admin-users`: version 21.
+- `admin-users`: version 22.
 - `nkkams-login`: version 6.
 
 ## Remaining validation
 
 - Complete a live role-by-role test with an Organisation Admin and a Teacher account. The live database currently has a Super Admin and an Organisation Head, but no separate Organisation Admin or Teacher account.
+- Restore the original SQL files for the already-applied multi-organisation migrations (20261116044821–20261116052734) into the repository. Their applied versions are present in Supabase, but their original SQL files were not present in the GitHub repository when audited; the new migration files in this change match the later live versions.
 - Verify a second organisation end-to-end after a real organisation request is submitted and approved.
 - Enable Supabase Auth leaked-password protection. The security check currently reports this setting as disabled; it is an Auth dashboard setting not exposed by the connected project tools.
 
