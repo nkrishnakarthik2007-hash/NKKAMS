@@ -25,24 +25,30 @@ Deno.serve(async(req:Request)=>{
   if(person){const {error}=await db.from("password_reset_requests").insert({requester_user_id:person.id,employee_id:person.employee_id,message:String(body.message||"").slice(0,500)});if(error&&!/duplicate|unique/i.test(error.message))return json({error:"Could not submit request."},503)}
   return json({ok:true,message:"If this Employee ID is registered, an administrator has received the request."},202);
  }
+ if(action==="bootstrap_super_admin"){
+  const {count,error}=await db.from("profiles").select("id",{count:"exact",head:true});
+  if(error)return json({error:"Could not verify setup."},503);
+  if((count||0)>0)return json({error:"Initial setup is already complete."},409);
+  const name=String(body.name||"").trim(),password=String(body.password||"");
+  if(!validId(employeeId)||!name||!strong(password))return json({error:"Enter a valid ID, name and strong password."},400);
+  const {data:created,error:ce}=await db.auth.admin.createUser({email:loginEmail(employeeId),password,email_confirm:true});
+  if(ce)return json({error:"Could not create account. Employee ID may already exist."},400);
+  const {error:pe}=await db.from("profiles").insert({id:created.user.id,employee_id:employeeId,name,role:"super_admin",is_active:true});
+  if(pe){await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not save profile."},500)}
+  return json({ok:true},201);
+ }
  const token=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"");
  const {data:{user},error:authError}=await db.auth.getUser(token);if(authError||!user)return json({error:"Sign in to continue."},401);
  const {data:me,error:meError}=await db.from("profiles").select("id,employee_id,name,role,is_active,organization_id").eq("id",user.id).single();
  if(meError||!me?.is_active)return json({error:"Active account required."},403);
  const role=String(me.role),global=role==="super_admin"||role==="platform_admin",superAdmin=role==="super_admin",head=role==="organization_head",orgAdmin=role==="admin";
  const targetById=(id:string)=>db.from("profiles").select("id,employee_id,name,role,is_active,organization_id,email,phone").eq("employee_id",id).maybeSingle();
- if(action==="bootstrap_super_admin"){
-  const {count,error}=await db.from("profiles").select("id",{count:"exact",head:true});if(error)return json({error:"Could not verify setup."},503);if((count||0)>0)return json({error:"Initial setup is already complete."},409);
-  const name=String(body.name||"").trim(),password=String(body.password||"");if(!validId(employeeId)||!name||!strong(password))return json({error:"Enter a valid ID, name and strong password."},400);
-  const {data:created,error:ce}=await db.auth.admin.createUser({email:loginEmail(employeeId),password,email_confirm:true});if(ce)return json({error:"Could not create account. Employee ID may already exist."},400);
-  const {error:pe}=await db.from("profiles").insert({id:created.user.id,employee_id:employeeId,name,role:"super_admin",is_active:true});if(pe){await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not save profile."},500)}return json({ok:true},201);
- }
- if(action==="list_organizations"){if(!global)return json({error:"Not authorized."},403);const {data,error}=await db.rpc("nkkams_list_organizations");if(error)return json({error:"Could not load organisations."},503);return json({organizations:data||[]})}
- if(action==="list_organization_requests"){if(!global)return json({error:"Not authorized."},403);const {data,error}=await db.rpc("nkkams_list_org_requests");if(error)return json({error:"Could not load requests."},503);return json({requests:data||[]})}
- if(action==="list_head_transfer_requests"){if(!["super_admin","platform_admin","organization_head","admin"].includes(role))return json({error:"Not authorized."},403);const {data,error}=await db.rpc("nkkams_list_transfers");if(error)return json({error:"Could not load transfers."},503);return json({requests:data||[]})}
- if(action==="request_head_transfer"){if(!head)return json({error:"Only the current organisation head can request a transfer."},403);const {error}=await db.rpc("nkkams_create_transfer",{p_employee_id:String(body.proposed_employee_id||employeeId).trim().toUpperCase()});if(error)return json({error:error.message},400);return json({ok:true})}
+ if(action==="list_organizations"){if(!global)return json({error:"Not authorized."},403);const {data,error}=await db.rpc("nkkams_list_organizations",{p_actor_id:user.id});if(error)return json({error:"Could not load organisations."},503);return json({organizations:data||[]})}
+ if(action==="list_organization_requests"){if(!global)return json({error:"Not authorized."},403);const {data,error}=await db.rpc("nkkams_list_org_requests",{p_actor_id:user.id});if(error)return json({error:"Could not load requests."},503);return json({requests:data||[]})}
+ if(action==="list_head_transfer_requests"){if(!["super_admin","platform_admin","organization_head","admin"].includes(role))return json({error:"Not authorized."},403);const {data,error}=await db.rpc("nkkams_list_transfers",{p_actor_id:user.id});if(error)return json({error:"Could not load transfers."},503);return json({requests:data||[]})}
+ if(action==="request_head_transfer"){if(!head)return json({error:"Only the current organisation head can request a transfer."},403);const {error}=await db.rpc("nkkams_create_transfer",{p_actor_id:user.id,p_employee_id:String(body.proposed_employee_id||employeeId).trim().toUpperCase()});if(error)return json({error:error.message},400);return json({ok:true})}
  if(action==="accept_head_transfer"){if(!orgAdmin)return json({error:"Only an organisation admin can accept."},403);const {error}=await db.rpc("nkkams_accept_head_transfer",{p_request_id:String(body.request_id||""),p_user_id:user.id});if(error)return json({error:error.message},400);return json({ok:true})}
- if(action==="set_organization_head"){if(!global)return json({error:"Not authorized."},403);const {error}=await db.rpc("nkkams_set_organization_head",{p_organization_id:String(body.organization_id||""),p_employee_id:employeeId});if(error)return json({error:error.message},400);return json({ok:true})}
+ if(action==="set_organization_head"){if(!global)return json({error:"Not authorized."},403);const {error}=await db.rpc("nkkams_set_organization_head",{p_actor_id:user.id,p_organization_id:String(body.organization_id||""),p_employee_id:employeeId});if(error)return json({error:error.message},400);return json({ok:true})}
  if(action==="set_organization_status"){if(!global)return json({error:"Not authorized."},403);const {error}=await db.rpc("nkkams_set_org_status",{p_org_id:String(body.organization_id||""),p_status:String(body.status||""),p_actor_id:user.id});if(error)return json({error:error.message},400);return json({ok:true})}
  if(action==="review_organization_request"){if(!global)return json({error:"Not authorized."},403);const {error}=await db.rpc("nkkams_review_org_request",{p_request_id:String(body.request_id||""),p_status:String(body.status||""),p_actor_id:user.id});if(error)return json({error:error.message},400);return json({ok:true})}
  if(action==="review_head_transfer"){if(!global)return json({error:"Only website administrators can review transfers."},403);const {error}=await db.rpc("nkkams_review_head_transfer",{p_request_id:String(body.request_id||""),p_status:String(body.status||""),p_actor_id:user.id});if(error)return json({error:error.message},400);return json({ok:true})}
