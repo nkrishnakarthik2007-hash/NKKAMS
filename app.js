@@ -27,6 +27,10 @@
  $('mobileThemeToggle')?.addEventListener('click',()=>$('themeToggle').click());$('mobileLogoutBtn')?.addEventListener('click',()=>$('logoutBtn').click());
  document.addEventListener('click',e=>{if(!e.target.closest('.mobile-account-menu,.mobile-menu-toggle')){$('mobileAccountMenu')?.classList.add('hidden');$('mobileMenuToggle')?.setAttribute('aria-expanded','false')}if(!e.target.closest('.mobile-more-menu,#mobileMoreToggle')){$('mobileMoreMenu')?.classList.add('hidden');$('mobileMoreToggle')?.setAttribute('aria-expanded','false')}});
  showLanding();
+ const publicOrgForm=document.querySelector('.org-request-public');
+ if(publicOrgForm&&$('registerPanel'))$('registerPanel').appendChild(publicOrgForm);
+ $('showRegister')?.addEventListener('click',()=>{$('loginCard')?.classList.add('hidden');$('registerPanel')?.classList.remove('hidden')});
+ $('showLogin')?.addEventListener('click',()=>{$('registerPanel')?.classList.add('hidden');$('loginCard')?.classList.remove('hidden')});
  setInterval(tick,1000);connection();addEventListener('online',connection);addEventListener('offline',connection);
  $('loginForm').onsubmit=async e=>{e.preventDefault();if(!sb){say('loginMessage','Admin setup is not complete. Add Supabase settings in config.js first.');return}
   if(offline()){say('loginMessage','Internet connection is required. Please reconnect and try again.');return}const id=$('loginEmployeeId').value.trim(),password=$('loginPassword').value;
