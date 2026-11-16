@@ -313,3 +313,18 @@ button:disabled{cursor:not-allowed}
 /* Authenticated workspace must never leak through the sign-in screen. */
 #appMain.hidden{display:none!important}
 @media(max-width:700px){body:has(#appMain.hidden) .mobile-bottom-nav,body:has(#appMain.hidden) .mobile-more-menu,body:has(#appMain.hidden) .mobile-menu-toggle,body:has(#appMain.hidden) .mobile-account-menu{display:none!important}body:has(#appMain.hidden) .login-wrap{padding-top:82px;padding-bottom:24px;min-height:calc(100dvh - 64px)}body:has(#appMain.hidden) .login-card{width:100%;max-width:520px;margin:0 auto;border-radius:18px}}
+
+
+/* Public landing and sign-in must never show authenticated workspace navigation. */
+@media (max-width: 700px) {
+  body:has(#appMain.hidden) .mobile-bottom-nav,
+  body:has(#appMain.hidden) .mobile-more-menu,
+  body:has(#appMain.hidden) #mobileMoreToggle,
+  body:has(#appMain.hidden) #mobileMenuToggle,
+  body:has(#appMain.hidden) #mobileAccountMenu {
+    display: none !important;
+  }
+}
+#appMain.hidden {
+  display: none !important;
+}
