@@ -224,10 +224,11 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
 
  $('organizationRequestForm')?.addEventListener('submit',async e=>{
   e.preventDefault();
-  const organization_name=$('requestOrgName').value.trim(),organization_type=$('requestOrgType').value,location=$('requestOrgLocation').value.trim(),phone=$('requestOrgPhone').value.trim(),email=$('requestOrgEmail').value.trim(),description=$('requestOrgMessage').value.trim();
+  const organization_name=$('requestOrgName').value.trim(),contact_name=$('requestContactName').value.trim(),organization_type=$('requestOrgType').value,location=$('requestOrgLocation').value.trim(),member_count=$('requestMemberCount').value,phone=$('requestOrgPhone').value.trim(),email=$('requestOrgEmail').value.trim(),intended_use=$('requestOrgMessage').value.trim();
   if(!phone&&!email){say('organizationPublicMessage','Please provide at least one contact method: email or phone.');return}
+  const message=['Organisation type: '+organization_type,'Location: '+location,'Approximate members: '+member_count,intended_use?'Intended use: '+intended_use:''].filter(Boolean).join('\n').slice(0,500);
   const submit=$('organizationRequestForm').querySelector('button[type="submit"]');submit.disabled=true;say('organizationPublicMessage','Sending your request…');
-  try{await publicCall('create_organization_request',{organization_name,organization_type,location,phone,email,description});$('organizationRequestForm').reset();say('organizationPublicMessage','Your request has been submitted. The NKKAMS Super Admin / Website Admin will review it.')}
+  try{await publicCall('create_organization_request',{organization_name,contact_name,email,phone,message});$('organizationRequestForm').reset();say('organizationPublicMessage','Thank you. Your request has been submitted for review. No account or access is created until it is approved.')}
   catch(err){say('organizationPublicMessage',err.message||'Could not submit your request. Please try again.')}
   finally{submit.disabled=false}
  });
