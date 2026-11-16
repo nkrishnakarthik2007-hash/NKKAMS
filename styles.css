@@ -298,3 +298,6 @@ html[data-layout=mobile] .app-shell{max-width:720px;padding:8px 12px}html[data-l
 
 /* Layout is selected automatically from viewport width; no manual switch */
 #layoutToggle,#mobileLayoutToggle{display:none!important}
+
+/* Date selection is committed immediately; keep the selected date visible */
+.custom-date-input{cursor:pointer}
