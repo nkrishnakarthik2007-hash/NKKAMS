@@ -138,9 +138,12 @@ Deno.serve(async req=>{
     if(orgError)return json({error:"Could not create organisation."},400);
     const {error:batchError}=await db.from("batches").insert({organization_id:org.id,name:"SMT-01"});
     if(batchError){await db.from("organizations").delete().eq("id",org.id);return json({error:"Could not create the first batch."},500);}
-    const {error:ownerError}=await db.from("profiles").update({organization_id:org.id,is_active:true,role:"organization_head"}).eq("id",reqRow.requested_by).eq("role","organization_head");
-    if(!ownerError){const {error:headError}=await db.from("organizations").update({head_user_id:reqRow.requested_by}).eq("id",org.id);if(headError){await db.from("organizations").delete().eq("id",org.id);return json({error:"Could not assign the organisation head."},500);}}
-    if(ownerError){await db.from("organizations").delete().eq("id",org.id);return json({error:"Could not activate the organisation head account."},500);}
+    if(reqRow.requested_by){
+      const {error:ownerError}=await db.from("profiles").update({organization_id:org.id,is_active:true,role:"organization_head"}).eq("id",reqRow.requested_by).eq("role","organization_head");
+      if(ownerError){await db.from("organizations").delete().eq("id",org.id);return json({error:"Could not activate the organisation head account."},500);}
+      const {error:headError}=await db.from("organizations").update({head_user_id:reqRow.requested_by}).eq("id",org.id);
+      if(headError){await db.from("profiles").update({organization_id:null,is_active:false}).eq("id",reqRow.requested_by);await db.from("organizations").delete().eq("id",org.id);return json({error:"Could not assign the organisation head."},500);}
+    }
     const {error:updateError}=await db.from("organization_requests").update({status:"approved",reviewed_by:user.id,reviewed_at:new Date().toISOString(),organization_id:org.id}).eq("id",requestId);
     if(updateError)return json({error:"Organisation created, but request status update failed."},500);
     return json({ok:true,organization_id:org.id},201);
