@@ -48,7 +48,7 @@ Current live roles:
 
 ## Current deployed backend versions
 
-- `admin-users`: version 22.
+- `admin-users`: version 23.
 - `nkkams-login`: version 6.
 
 ## Remaining validation
