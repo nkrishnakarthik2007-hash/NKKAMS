@@ -249,7 +249,7 @@ Deno.serve(async req=>{
     const orgId=String(body.organization_id||""),name=String(body.name||"").trim();
     if(!/^[0-9a-f-]{36}$/i.test(orgId)||!name||name.length>80)return json({error:"Enter a valid batch name."},400);
     if(!canManageUsers)return json({error:"You do not have permission to create batches."},403);
-    if(!isSuper&&me.organization_id!==orgId)return json({error:"You cannot create batches for another organisation."},403);
+    if(!isGlobalAdmin&&me.organization_id!==orgId)return json({error:"You cannot create batches for another organisation."},403);
     const {data,error}=await db.from("batches").insert({organization_id:orgId,name}).select("id,name").single();
     if(error)return json({error:/duplicate/i.test(error.message)?"That batch already exists.":"Could not create batch."},400);
     return json({ok:true,batch:data},201);
