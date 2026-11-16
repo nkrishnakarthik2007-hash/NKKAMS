@@ -149,7 +149,7 @@
   const organization_name=$('requestOrgName').value.trim(),contact_name=$('requestContactName').value.trim(),phone=$('requestOrgPhone').value.trim(),email=$('requestOrgEmail').value.trim(),message=$('requestOrgMessage').value.trim();
   if(!phone&&!email){say('organizationPublicMessage','Please enter a phone number or email so we can contact you.');return}
   const submit=$('organizationRequestForm').querySelector('button[type="submit"]');submit.disabled=true;say('organizationPublicMessage','Sending your request…');
-  try{const {error}=await sb.from('organization_requests').insert({organization_name,contact_name,phone:phone||null,email:email||null,message:message||null});if(error)throw error;$('organizationRequestForm').reset();say('organizationPublicMessage','Your request has been sent. The NKKAMS Super Admin will review it.')}
+  try{await publicCall('create_organization_request',{organization_name,contact_name,phone,email,message});$('organizationRequestForm').reset();say('organizationPublicMessage','Your request has been sent. The NKKAMS Super Admin will review it.')}
   catch(err){say('organizationPublicMessage',err.message||'Could not submit your request. Please try again.')}
   finally{submit.disabled=false}
  });
@@ -181,7 +181,7 @@
   $('headInvitePanel')?.classList.toggle('hidden',profile?.role!=='admin');const contactPanel=$('superContactForm')?.closest('.subpanel');if(contactPanel)contactPanel.classList.toggle('hidden',profile?.role!=='super_admin');
   document.querySelectorAll('[data-page=organizations]').forEach(el=>el.classList.toggle('hidden',!isGlobal));
   const holidayNav=document.querySelectorAll('[data-page=holidays]');holidayNav.forEach(el=>el.classList.toggle('hidden',!(isGlobal||isHead||isOrgAdmin)));
-  $('createUserForm')?.classList.toggle('hidden',profile?.role==='platform_admin');const leftDateField=$('leftDate')?.closest('label');if(leftDateField)leftDateField.classList.toggle('hidden',profile?.role==='teacher');
+  $('createUserForm')?.classList.toggle('hidden',false);const leftDateField=$('leftDate')?.closest('label');if(leftDateField)leftDateField.classList.toggle('hidden',profile?.role==='teacher');
   $('userAdminPanel')?.classList.toggle('hidden',!['super_admin','platform_admin','organization_head','admin'].includes(profile?.role));
   $('headTransferPanel')?.classList.toggle('hidden',!isHead);
  }
