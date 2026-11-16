@@ -5,6 +5,15 @@ Last updated: 2026-11-16
 ## Current milestone: Multi-organisation administration (in progress)
 
 ### Completed
+- [x] Organisation schema created in the connected Supabase project: Hetero organisation and SMT-02 batch.
+- [x] Website Admin (`platform_admin`) and Organisation Head role values added.
+- [x] Organisation-scoped profile, student, attendance, holiday, batch and admin-contact access policies added.
+- [x] Organisation request, leadership transfer, direct head appointment and organisation status database workflows added.
+- [x] `admin-users` Edge Function deployed (version 14) with organisation registration, scoped user management, leadership actions and organisation listing.
+- [x] Organisations page connected to the backend; global administrators can open an organisation workspace.
+- [x] Organisation registration form connected to the public Edge Function.
+- [x] Official Hetero roster recovered from the saved student-list file and imported: 104 students, 104 unique Employee IDs, joining date 2026-07-09, assigned to Hetero / SMT-02.
+- [x] GitHub Pages deployment succeeded after JavaScript syntax validation and frontend smoke checks.
 - [x] Existing repository inspected; original useful code retained.
 - [x] Dedicated Attendance page added; Overview no longer doubles as Attendance.
 - [x] Left-side desktop navigation and mobile horizontal navigation.
@@ -31,14 +40,21 @@ Last updated: 2026-11-16
 - [x] GitHub Pages workflow now runs node --check app.js before publishing.
 
 ### Verified database state
-- Students: 104 records, 104 unique Employee IDs.
-- Profiles: one active Super Admin (241536).
+- Organisations: 1 active organisation (Hetero); current head unassigned.
+- Batches: 1 (SMT-02).
+- Students: 104 records, 104 unique Employee IDs; all assigned to Hetero / SMT-02 with joining date 2026-07-09.
+- Profiles: one active Super Admin (241536); no organisation staff accounts yet.
+- Attendance: 0 records in the connected project at the time of roster recovery; no historical attendance records were available to restore.
 - Active admin contacts: one Super Admin contact.
 - Password reset requests: table exists; no requests submitted yet.
 - Student RLS: authenticated active staff may insert/update; no app hard-delete policy.
 - Attendance RLS: authenticated active staff may insert/update only when student date is eligible and date is not a holiday.
 
 ### Still requires end-to-end testing
+- [ ] Create a real Organisation Admin and Organisation Head account, then test all organisation-level actions.
+- [ ] Create a second organisation and verify cross-organisation isolation using separate accounts.
+- [ ] Test head transfer end-to-end: request, invitee acceptance, Website Admin / Super Admin approval, and old-head demotion.
+- [ ] Test suspend/reactivate organisation and verify suspended users cannot access organisation data.
 - [ ] Login on the live GitHub Pages site with the existing Super Admin account.
 - [ ] Create and test a Teacher account.
 - [ ] Create and test a second Admin account as Super Admin.
