@@ -24,7 +24,7 @@
  document.querySelectorAll('.mobile-nav-item[data-page],.mobile-more-menu [data-page]').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.page)));
  $('mobileMoreToggle')?.addEventListener('click',()=>{const menu=$('mobileMoreMenu'),open=menu.classList.toggle('hidden')===false;$('mobileMoreToggle').setAttribute('aria-expanded',String(open));$('mobileAccountMenu').classList.add('hidden')});
  $('mobileMenuToggle')?.addEventListener('click',()=>{const menu=$('mobileAccountMenu'),open=menu.classList.toggle('hidden')===false;$('mobileMenuToggle').setAttribute('aria-expanded',String(open));$('mobileMoreMenu').classList.add('hidden')});
- $('mobileThemeToggle')?.addEventListener('click',()=>$('themeToggle').click());$('mobileLogoutBtn')?.addEventListener('click',()=>$('logoutBtn').click());
+ $('mobileLogoutBtn')?.addEventListener('click',()=>$('logoutBtn').click());
  document.addEventListener('click',e=>{if(!e.target.closest('.mobile-account-menu,.mobile-menu-toggle')){$('mobileAccountMenu')?.classList.add('hidden');$('mobileMenuToggle')?.setAttribute('aria-expanded','false')}if(!e.target.closest('.mobile-more-menu,#mobileMoreToggle')){$('mobileMoreMenu')?.classList.add('hidden');$('mobileMoreToggle')?.setAttribute('aria-expanded','false')}});
  showLanding();
  const publicOrgForm=document.querySelector('.org-request-public');
