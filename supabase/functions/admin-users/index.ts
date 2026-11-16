@@ -42,6 +42,8 @@ Deno.serve(async(req:Request)=>{
  const {data:me,error:meError}=await db.from("profiles").select("id,employee_id,name,role,is_active,organization_id").eq("id",user.id).single();
  if(meError||!me?.is_active)return json({error:"Active account required."},403);
  const role=String(me.role),global=role==="super_admin"||role==="platform_admin",superAdmin=role==="super_admin",head=role==="organization_head",orgAdmin=role==="admin";
+ if(!global&&me.organization_id){const {data:org,error:orgError}=await db.from("organizations").select("status").eq("id",me.organization_id).maybeSingle();if(orgError||!org||org.status!=="active")return json({error:"Your organisation is currently suspended. Contact a Website Admin or Super Admin."},403);}
+
  const targetById=(id:string)=>db.from("profiles").select("id,employee_id,name,role,is_active,organization_id,email,phone").eq("employee_id",id).maybeSingle();
  if(action==="list_organizations"){if(!global)return json({error:"Not authorized."},403);const {data,error}=await db.rpc("nkkams_list_organizations",{p_actor_id:user.id});if(error)return json({error:"Could not load organisations."},503);return json({organizations:data||[]})}
  if(action==="list_organization_requests"){if(!global)return json({error:"Not authorized."},403);const {data,error}=await db.rpc("nkkams_list_org_requests",{p_actor_id:user.id});if(error)return json({error:"Could not load requests."},503);return json({requests:data||[]})}
