@@ -1,8 +1,8 @@
 # NKKAMS Project Status
 
-Last updated: 2026-11-15
+Last updated: 2026-11-16
 
-## Current milestone: Attendance and student lifecycle rebuild
+## Current milestone: Multi-organisation administration (in progress)
 
 ### Completed
 - [x] Existing repository inspected; original useful code retained.

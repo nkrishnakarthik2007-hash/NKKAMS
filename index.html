@@ -82,6 +82,7 @@
           <label>Employee ID<input id="newUserEmployeeId" maxlength="30" required placeholder="Example: EMP102"></label>
           <label>Full name<input id="newUserName" maxlength="100" required placeholder="Employee full name"></label>
           <label>Role<select id="newUserRole"><option value="teacher">Teacher</option><option value="admin">Organisation Admin</option><option value="platform_admin">Website Admin</option></select></label>
+          <label id="newUserOrgWrap" class="hidden">Organisation<select id="newUserOrganization"><option value="">Choose organisation</option></select></label>
           <div id="adminContactFields" class="admin-contact-fields hidden">
             <p class="admin-contact-hint">Phone / WhatsApp is preferred. Enter a phone number, an email address, or both. Only one contact method is required.</p>
             <label>Phone / WhatsApp <span class="contact-preferred">Preferred</span><input id="newUserPhone" type="tel" placeholder="+91..."></label>
