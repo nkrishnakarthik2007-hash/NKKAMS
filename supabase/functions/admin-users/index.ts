@@ -33,6 +33,9 @@ Deno.serve(async req=>{
   const employeeId=String(body.employee_id||"").trim().toUpperCase();
   const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   if(body.action==="create_organization_request"){
+    const {data:registrationSetting,error:registrationSettingError}=await db.from("platform_settings").select("setting_value").eq("setting_key","organization_creation_enabled").single();
+    if(registrationSettingError)return json({error:"Organisation registration settings are unavailable. Please try again later."},503);
+    if(registrationSetting?.setting_value===true)return json({error:"Self-service organisation creation is enabled. Refresh the page and complete the Organisation Head account details."},409);
     const orgName=String(body.organization_name||"").trim(),contactName=String(body.contact_name||"").trim();
     const email=String(body.email||"").trim(),phone=String(body.phone||"").trim(),message=String(body.message||"").trim().slice(0,500);
     if(!orgName||orgName.length>120||!contactName||contactName.length>100)return json({error:"Enter a valid organisation and contact name."},400);
