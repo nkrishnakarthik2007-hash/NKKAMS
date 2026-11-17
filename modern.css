@@ -352,3 +352,5 @@ tbody tr:hover{background:#f8faff}
 .login-card #forgotToggle{margin-top:16px}
 #backToLanding{min-height:45px;margin-top:20px}
 @media(max-width:650px){.login-card{padding:28px 22px}}
+
+.login-privacy-link{text-align:center;margin:12px 0 0;font-size:12px}.login-privacy-link a{color:#647894;text-decoration:none}.login-privacy-link a:hover{color:#2457d6;text-decoration:underline}
