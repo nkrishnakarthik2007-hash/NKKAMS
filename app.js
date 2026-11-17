@@ -23,6 +23,7 @@
  function syncProfileHeader(){const n=$('profileName');if(n){n.textContent=profile?.name||'My account';n.classList.remove('hidden')}}
  function showWorkspace(){$('landingPage').classList.add('hidden');$('loginGate').classList.add('hidden');$('appMain').classList.remove('hidden');syncProfileHeader()}
  function showLanding(){$('landingPage').classList.remove('hidden');$('loginGate').classList.add('hidden');$('appMain').classList.add('hidden')}
+ $('backToLanding')?.addEventListener('click',()=>{showLanding();window.scrollTo({top:0,behavior:'smooth'});});
  $('landingSignIn').onclick=async()=>{$('landingSignIn').disabled=true;try{const {data:sessionData,error:sessionError}=await sb.auth.getSession();if(sessionError)throw sessionError;const session=sessionData.session;if(session){user=session.user;const {data:myProfile,error}=await sb.from('profiles').select('role,name,organization_id,is_active').eq('id',user.id).single();if(error||!myProfile?.is_active){await sb.auth.signOut({scope:'local'});clearAuthenticatedState();throw new Error('Your account is inactive or its profile is unavailable. Contact an administrator.')}profile=myProfile;applyRoleUI();if(myProfile&&['super_admin','platform_admin','organization_head','admin'].includes(myProfile.role)){$('userAdminPanel').classList.remove('hidden');document.querySelectorAll('.admin-nav').forEach(x=>x.classList.remove('hidden'))}$('logoutBtn').classList.remove('hidden');showWorkspace();currentPage='';if(['super_admin','platform_admin'].includes(myProfile.role)){await showPage('organizations')}else{await load();await showPage('dashboard')}}else{$('landingPage').classList.add('hidden');$('loginGate').classList.remove('hidden');$('loginEmployeeId').focus()}}catch(err){say('loginMessage',err.message||'Could not restore your session. Please sign in.');$('landingPage').classList.add('hidden');$('loginGate').classList.remove('hidden')}finally{$('landingSignIn').disabled=false}};
  function hasUnsavedAttendance(){return JSON.stringify(draftAttendance)!==JSON.stringify(attendance)}
  async function showPage(page){if(currentPage==='attendance'&&hasUnsavedAttendance()&&page!==currentPage){if(!confirm('You have unsaved attendance changes. Leave this page and discard them?'))return;clearAttendanceDraft();draftAttendance={...attendance};recoveredPending=false;$('saveRecoveredDraft')?.classList.add('hidden');}if(page===currentPage&&page==='attendance')return;writeWorkspaceState({page});currentPage=page;document.querySelectorAll('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.page===page));document.querySelectorAll('.mobile-nav-item[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('mobileMoreToggle')?.classList.toggle('active',!['attendance','students','reports','holidays'].includes(page));document.querySelectorAll('.mobile-more-menu [data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('mobileMoreMenu')?.classList.add('hidden');$('mobileMoreToggle')?.setAttribute('aria-expanded','false');document.querySelectorAll('[data-page-view]').forEach(x=>x.classList.toggle('hidden',x.dataset.pageView!==page));if(['attendance','students','reports','dashboard'].includes(page))await load();if(page==='reports'){if(!profile?.organization_id){say('saveStatus','Choose an organisation to view its reports.');return}const selectedAttendanceDate=$('attendanceDate').value||today();if(selectedAttendanceDate!==lastReportAttendanceDate){const parts=selectedAttendanceDate.split('-');if(parts.length===3){$('reportYear').value=parts[0];$('reportMonth').value=String(Number(parts[1]));lastReportAttendanceDate=selectedAttendanceDate;}}await renderReportViews();}if(page==='holidays')await renderHolidayPage();if(page==='students')renderDirectory();if(page==='users')await loadUsers();if(page==='organizations')await loadOrganizationRequests();if(page==='batches')await loadBatchPage();if(page==='requests'){await loadRequests();await loadLeftRequests();}if(page==='help')await loadContacts();}
@@ -36,10 +37,7 @@
  $('mobileLogoutBtn')?.addEventListener('click',()=>$('logoutBtn').click());
  document.addEventListener('click',e=>{if(!e.target.closest('.mobile-account-menu,.mobile-menu-toggle')){$('mobileAccountMenu')?.classList.add('hidden');$('mobileMenuToggle')?.setAttribute('aria-expanded','false')}if(!e.target.closest('.mobile-more-menu,#mobileMoreToggle')){$('mobileMoreMenu')?.classList.add('hidden');$('mobileMoreToggle')?.setAttribute('aria-expanded','false')}});
  showLanding();
- const publicOrgForm=document.querySelector('.org-request-public');
- if(publicOrgForm&&$('registerPanel'))$('registerPanel').appendChild(publicOrgForm);
- $('showRegister')?.addEventListener('click',()=>{$('loginCard')?.classList.add('hidden');$('registerPanel')?.classList.remove('hidden')});
- $('showLogin')?.addEventListener('click',()=>{$('registerPanel')?.classList.add('hidden');$('loginCard')?.classList.remove('hidden')});
+
  setInterval(tick,1000);connection();addEventListener('online',connection);addEventListener('offline',connection);
  $('loginForm').onsubmit=async e=>{e.preventDefault();if(!sb){say('loginMessage','Admin setup is not complete. Add Supabase settings in config.js first.');return}
   if(offline()){say('loginMessage','Internet connection is required. Please reconnect and try again.');return}const id=$('loginEmployeeId').value.trim(),password=$('loginPassword').value;
@@ -237,18 +235,15 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
  $('refreshBatches')?.addEventListener('click',loadBatchPage);
  $('batchPageCreateForm')?.addEventListener('submit',async e=>{e.preventDefault();const name=$('batchPageName').value.trim();if(!name||!profile.organization_id)return;const btn=e.currentTarget.querySelector('button[type=submit]');btn.disabled=true;try{await adminCall('create_batch',{name,organization_id:profile.organization_id});$('batchPageName').value='';say('batchPageMessage','Batch created successfully.');await loadBatchPage();await load()}catch(err){say('batchPageMessage',err.message)}finally{btn.disabled=false}});
 
- async function refreshOrganizationRegistrationMode(){
-  try{
-   const setting=await publicCall('get_organization_creation_setting');
-   const enabled=setting.enabled===true;
-   $('selfServiceOrgOwnerFields')?.classList.toggle('hidden',!enabled);
-   if($('requestOwnerEmployeeId'))$('requestOwnerEmployeeId').required=enabled;
-   if($('requestOwnerPassword'))$('requestOwnerPassword').required=enabled;
-   const intro=$('orgRegistrationIntro');
-   if(intro)intro.textContent=enabled?'Create an organisation workspace and become its Organisation Head. Your workspace will be available immediately after registration.':'Tell us about your organisation. Requests are reviewed by a NKKAMS website administrator. No account or workspace is created until approval.';
-   const submit=$('organizationRequestForm')?.querySelector('button[type="submit"]');
-   if(submit)submit.textContent=enabled?'Create organisation':'Submit access request';
-  }catch(err){console.warn('Could not load organisation registration setting',err);}
+ function refreshOrganizationRegistrationMode(){
+  const enabled=true;
+  $('selfServiceOrgOwnerFields')?.classList.remove('hidden');
+  if($('requestOwnerEmployeeId'))$('requestOwnerEmployeeId').required=true;
+  if($('requestOwnerPassword'))$('requestOwnerPassword').required=true;
+  const intro=$('orgRegistrationIntro');
+  if(intro)intro.textContent='Create your organisation workspace and become its Organisation Head. Your workspace is created immediately after successful registration.';
+  const submit=$('organizationRequestForm')?.querySelector('button[type="submit"]');
+  if(submit)submit.textContent='Create organisation workspace';
  }
  refreshOrganizationRegistrationMode();
  $('organizationRequestForm')?.addEventListener('submit',async e=>{
@@ -263,7 +258,7 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
   try{
    const result=enabled?await publicCall('submit_organization_request',payload):await publicCall('create_organization_request',payload);
    $('organizationRequestForm').reset();
-   say('organizationPublicMessage',result.message||(enabled?'Organisation created. You can now sign in using your Employee ID and password.':'Thank you. Your request has been submitted for review.'));
+   say('organizationPublicMessage',result.message||'Your organisation workspace is ready. Go to Login and sign in using your new Employee ID and password.');
    await refreshOrganizationRegistrationMode();
   }catch(err){say('organizationPublicMessage',err.message||'Could not submit your request. Please try again.')}
   finally{submit.disabled=false}
