@@ -580,3 +580,15 @@ body.auth-checking #landingPage,body.auth-checking #loginGate{display:none!impor
   .mobile-bottom-nav{padding-inline:5px!important}
   .mobile-nav-item small{font-size:9px!important}
 }
+
+
+/* Super Admin platform setting toggle */
+.switch-row{display:inline-flex;align-items:center;gap:10px;font-weight:600;cursor:pointer;white-space:nowrap}
+.switch-row input{position:absolute;opacity:0;width:1px;height:1px}
+.switch-ui{position:relative;display:inline-block;width:46px;height:26px;border-radius:999px;background:var(--border,#cbd5e1);transition:background .2s ease;flex:0 0 auto}
+.switch-ui::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .2s ease}
+.switch-row input:checked+.switch-ui{background:var(--primary,#2563eb)}
+.switch-row input:checked+.switch-ui::after{transform:translateX(20px)}
+.switch-row input:focus-visible+.switch-ui{outline:3px solid color-mix(in srgb,var(--primary,#2563eb) 30%,transparent);outline-offset:3px}
+.switch-row input:disabled+.switch-ui{opacity:.55;cursor:wait}
+@media(max-width:700px){.switch-row{white-space:normal;gap:8px}}
