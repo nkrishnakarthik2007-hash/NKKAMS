@@ -9,7 +9,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=2">
   <link rel="apple-touch-icon" href="./favicon.svg?v=2">
-  <link rel="stylesheet" href="./styles.css?v=18"><link rel="stylesheet" href="./modern.css?v=21"><link rel="stylesheet" href="./public.css?v=3">
+  <link rel="stylesheet" href="./styles.css?v=18"><link rel="stylesheet" href="./modern.css?v=22"><link rel="stylesheet" href="./public.css?v=3">
 </head>
 <body class="auth-checking">
   <div class="app-shell">
@@ -85,8 +85,9 @@
         <form id="createUserForm" class="user-form">
           <label>Employee ID<input id="newUserEmployeeId" maxlength="30" required placeholder="Example: EMP102"></label>
           <label>Full name<input id="newUserName" maxlength="100" required placeholder="Employee full name"></label>
-          <label>Role<select id="newUserRole"><option value="teacher">Teacher</option><option value="admin">Organisation Admin</option><option value="platform_admin">Website Admin</option></select></label>
+          <label>Role<select id="newUserRole"><option value="teacher">Batch Admin / Teacher</option><option value="admin">Organisation Admin</option><option value="platform_admin">Website Admin</option></select></label>
           <label id="newUserOrgWrap" class="hidden">Organisation<select id="newUserOrganization"><option value="">Choose organisation</option></select></label>
+          <label id="newUserBatchWrap" class="hidden">Assigned batch<select id="newUserBatch"><option value="">Choose assigned batch</option></select><small class="muted">Batch Admin / Teacher accounts can access only this batch.</small></label>
           <div id="adminContactFields" class="admin-contact-fields hidden">
             <p class="admin-contact-hint">Phone / WhatsApp is preferred. Enter a phone number, an email address, or both. Only one contact method is required.</p>
             <label>Phone / WhatsApp <span class="contact-preferred">Preferred</span><input id="newUserPhone" type="tel" placeholder="+91..."></label>
@@ -125,5 +126,5 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <script src="./config.js?v=3"></script><script src="./app.js?v=83"></script><script src="./register-sw.js"></script>
+  <script src="./config.js?v=3"></script><script src="./app.js?v=84"></script><script src="./register-sw.js"></script>
 </body></html>
