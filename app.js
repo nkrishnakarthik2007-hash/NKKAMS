@@ -92,7 +92,15 @@
  say('saveStatus','Loading organisation and students…');
  try{
   if(isGlobalWorkspace){
-   const orgResult=await adminCall('list_my_workspaces'),orgs=orgResult.organizations||[];const savedOrg=readWorkspaceState().organizationId,preferredOrg=orgs.find(o=>o.id===savedOrg)||(orgs.length===1?orgs[0]:null);if(isGlobalWorkspace&&preferredOrg&&!profile.organization_id){profile.organization_id=preferredOrg.id;profile.organization_name=preferredOrg.name||'';}
+   const orgResult=await adminCall('list_my_workspaces'),orgs=orgResult.organizations||[];
+   // Recovery path: a Super Admin may already have an explicitly assigned workspace
+   // on their profile even if the membership list response is temporarily empty.
+   if(profile.organization_id&&!orgs.some(o=>o.id===profile.organization_id)){
+    const {data:assignedOrg,error:assignedOrgError}=await sb.from('organizations').select('id,name,status').eq('id',profile.organization_id).maybeSingle();
+    if(!assignedOrgError&&assignedOrg&&assignedOrg.status==='active')orgs.push({...assignedOrg,membership_role:'organization_head'});
+   }
+   const savedOrg=readWorkspaceState().organizationId,preferredOrg=orgs.find(o=>o.id===savedOrg)||(orgs.length===1?orgs[0]:null);
+   if(preferredOrg&&!profile.organization_id){profile.organization_id=preferredOrg.id;profile.organization_name=preferredOrg.name||'';}
    const optionHtml='<option value="">Choose organisation</option>'+orgs.map(o=>'<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>').join('');
    const attendanceOrg=$('attendanceOrganization'),studentOrg=$('studentOrganization');
    if(attendanceOrg){attendanceOrg.innerHTML=optionHtml;attendanceOrg.value=profile.organization_id||'';attendanceOrg.disabled=!orgs.length;}
