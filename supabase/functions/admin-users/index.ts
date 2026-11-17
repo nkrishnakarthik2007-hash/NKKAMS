@@ -156,6 +156,16 @@ Deno.serve(async req=>{
   const isOrgHead=me.role==="organization_head";
   const isOrgAdmin=me.role==="admin";
   const canManageUsers=isGlobalAdmin||isOrgHead||isOrgAdmin;
+  if(body.action==="list_my_workspaces"){
+    const {data:memberships,error:membershipError}=await db.from("organization_memberships").select("organization_id,role,batch_id").eq("user_id",user.id).eq("is_active",true);
+    if(membershipError)return json({error:"Could not load your authorised workspaces."},503);
+    const ids=(memberships||[]).map(m=>m.organization_id);
+    if(!ids.length)return json({organizations:[]});
+    const {data:orgs,error:orgError}=await db.from("organizations").select("id,name,status").in("id",ids).eq("status","active").order("name");
+    if(orgError)return json({error:"Could not load your authorised workspaces."},503);
+    const access=new Map((memberships||[]).map(m=>[m.organization_id,{membership_role:m.role,batch_id:m.batch_id}]));
+    return json({organizations:(orgs||[]).map(o=>({...o,...access.get(o.id)}))});
+  }
   if(!isGlobalAdmin&&me.organization_id){const {data:org,error:orgError}=await db.from("organizations").select("status").eq("id",me.organization_id).maybeSingle();if(orgError||!org||org.status!=="active")return json({error:"Your organisation is currently suspended. Contact a Website Admin or Super Admin."},403);}
   
   if(body.action==="list_organization_requests"){
