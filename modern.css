@@ -254,3 +254,79 @@ tbody tr:hover{background:#f8faff}
 .org-registration-control{display:flex;align-items:center;justify-content:space-between;gap:22px}
 .org-registration-control .org-registration-copy{min-width:0}
 @media(max-width:760px){.org-registration-control{align-items:flex-start;flex-direction:column}.org-registration-open{white-space:normal}}
+
+/* Unified light enterprise identity across landing, login and registration */
+.app-shell:has(#landingPage:not(.hidden)){background:#f4f7fb}
+#landingPage{--nkk-ink:#172b4d;--nkk-muted:#61738c;background:radial-gradient(ellipse at 78% 10%,rgba(59,130,246,.12),transparent 34%),radial-gradient(ellipse at 12% 38%,rgba(6,182,212,.08),transparent 35%),linear-gradient(180deg,#f9fbff 0%,#f2f6fc 100%);color:#172b4d}
+#landingPage::before{opacity:.32;background-image:linear-gradient(rgba(59,105,175,.065) 1px,transparent 1px),linear-gradient(90deg,rgba(59,105,175,.065) 1px,transparent 1px)}
+#landingPage .public-nav{background:rgba(255,255,255,.9);border-bottom:1px solid #e2eaf4;box-shadow:0 5px 20px rgba(28,58,99,.035)}
+#landingPage .public-nav-brand{color:#172b4d}
+#landingPage .public-nav-links a{color:#5c6f88}
+#landingPage .public-nav-links a:hover{color:#2457d6}
+#landingPage .public-login{background:#2457d6!important;border-color:#2457d6!important;box-shadow:0 8px 20px rgba(36,87,214,.15)}
+#landingPage #home{min-height:590px}
+#landingPage .network-notice{color:#3c6c9f;background:#edf5ff;border-color:#d8e8fc}
+#landingPage .hero-copy h1{color:#172b4d}
+#landingPage .hero-copy>p{color:#61738c}
+#landingPage .hero-pill{background:#edf5ff;border-color:#d8e7fb;color:#315d9c}
+#landingPage .hero-emblem{background:linear-gradient(145deg,#1e55c7,#347ce5 58%,#16a6bf);box-shadow:0 28px 75px rgba(38,104,211,.24),inset 0 1px 1px rgba(255,255,255,.7)}
+#landingPage .hero-emblem i,#landingPage .hero-emblem b{border-color:rgba(61,133,218,.32)}
+#landingPage .orbit{border-color:rgba(75,132,210,.24)}
+#landingPage .float-chip{background:rgba(255,255,255,.94);border-color:#dce7f5;color:#36516f;box-shadow:0 14px 36px rgba(36,70,115,.1)}
+#landingPage .visual-caption{color:#7d91aa}
+#landingPage .public-section-heading h2,#landingPage .public-about h2{color:#172b4d}
+#landingPage .public-section-heading p,#landingPage .public-about p{color:#65768d}
+#landingPage .public-kicker{color:#3478ce}
+#landingPage .public-feature{background:#fff;border-color:#e1e9f3;box-shadow:0 12px 32px rgba(24,52,82,.045)}
+#landingPage .public-feature h3{color:#1b334e}
+#landingPage .public-feature p{color:#718095}
+#landingPage .public-feature>span{background:#edf5ff;border-color:#dbeafe;color:#2873d1}
+#landingPage .public-feature:hover{background:#fff;border-color:#b9d2f5;box-shadow:0 18px 38px rgba(31,75,142,.09)}
+#landingPage .public-demo-callout{background:linear-gradient(115deg,#edf5ff,#f4f7ff 65%,#effbff);border-color:#dce8f7;box-shadow:0 18px 50px rgba(29,65,120,.07)}
+#landingPage .public-demo-callout h2{color:#172b4d}
+#landingPage .public-demo-callout p{color:#61738c}
+#landingPage .demo-preview-card{background:#fff;border-color:#e0e8f1;box-shadow:0 16px 40px rgba(33,65,100,.09)}
+#landingPage .demo-preview-top{color:#253b55}
+#landingPage .demo-preview-stats div{background:#f4f7fb}
+#landingPage .demo-preview-stats small{color:#8090a3}
+#landingPage .demo-preview-stats strong{color:#1d3652}
+#landingPage .demo-preview-card>small{color:#94a1b1}
+#landingPage .public-about{border-color:#e4ebf4}
+#landingPage .public-note{background:#f1f6fd;color:#526982;border-left-color:#4b8ddd}
+#landingPage .public-trust article{border-top-color:#dce9f8}
+#landingPage .public-trust h3{color:#1c3550}
+#landingPage .public-trust p{color:#78879a}
+#landingPage .public-request-panel{background:#fff!important;border-color:#e1e9f3!important;box-shadow:0 16px 44px rgba(28,54,82,.07)!important}
+#landingPage .public-request-panel label{color:#334765}
+#landingPage .public-request-panel input,#landingPage .public-request-panel select,#landingPage .public-request-panel textarea{color:#172b4d;background:#fff;border-color:#dce5f0}
+#landingPage .public-request-panel input::placeholder,#landingPage .public-request-panel textarea::placeholder{color:#91a0b2}
+#landingPage .public-request-panel .muted,#landingPage .public-privacy-note{color:#718095}
+#landingPage .public-privacy-note a{color:#2866ca}
+#landingPage .public-footer{color:#8492a4;border-top:1px solid #e5ebf3}
+#landingPage .public-footer a{color:#5d7691}
+#landingPage .secondary-hero{background:#fff;border-color:#dce5f1;color:#31516f}
+#landingPage .public-request-panel .privacy-consent{display:flex;align-items:flex-start;gap:10px;grid-column:1/-1;font-size:12px;line-height:1.6;color:#52657e}
+#landingPage .privacy-consent input{width:17px;min-width:17px;height:17px;min-height:17px;margin:2px 0 0;accent-color:#2457d6}
+.login-wrap{min-height:calc(100vh - 96px);padding:36px 18px;box-sizing:border-box;background:radial-gradient(ellipse at 50% 0%,rgba(65,126,220,.09),transparent 48%),#f4f7fb}
+.login-card{width:min(100%,440px);padding:38px;border-radius:22px;border-color:#e0e8f2;box-shadow:0 20px 60px rgba(27,57,98,.08)}
+.login-card h1{font-size:30px;letter-spacing:-.045em;color:#172b4d}
+.login-card>.muted{line-height:1.7}
+.login-card .form-stack{gap:11px}
+.login-card input{min-height:48px;background:#fbfcfe}
+.login-card .primary{min-height:48px}
+#backToLanding{display:block;width:100%;margin-top:16px;padding:12px;border:1px solid #e0e8f2;border-radius:11px;background:#fff;color:#52657e;text-decoration:none;font-weight:650}
+#backToLanding:hover{background:#f6f9fe;color:#2457d6}
+[data-theme=dark] #landingPage{background:linear-gradient(180deg,#f9fbff,#f2f6fc);color:#172b4d}
+[data-theme=dark] #landingPage .public-nav{background:rgba(255,255,255,.92);border-color:#e2eaf4}
+[data-theme=dark] #landingPage .public-nav-brand{color:#172b4d}
+[data-theme=dark] #landingPage .public-nav-links a{color:#5c6f88}
+[data-theme=dark] #landingPage .public-section-heading h2,[data-theme=dark] #landingPage .public-about h2{color:#172b4d}
+[data-theme=dark] #landingPage .public-section-heading p,[data-theme=dark] #landingPage .public-about p{color:#65768d}
+[data-theme=dark] #landingPage .public-feature{background:#fff;border-color:#e1e9f3}
+[data-theme=dark] #landingPage .public-feature h3{color:#1b334e}
+[data-theme=dark] #landingPage .public-feature p{color:#718095}
+[data-theme=dark] #landingPage .public-demo-callout{background:linear-gradient(115deg,#edf5ff,#f4f7ff 65%,#effbff)}
+[data-theme=dark] #landingPage .public-demo-callout h2{color:#172b4d}
+[data-theme=dark] #landingPage .public-demo-callout p{color:#61738c}
+[data-theme=dark] #landingPage .public-request-panel{background:#fff!important}
+@media(max-width:760px){.login-card{padding:26px 21px}.login-wrap{padding:22px 14px}}
