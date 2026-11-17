@@ -12,7 +12,7 @@ function corsPolicy(req:Request){
 async function applyLoginIpLimit(db:ReturnType<typeof createClient>,req:Request){
  const ip=req.headers.get("cf-connecting-ip")||req.headers.get("x-real-ip")||(req.headers.get("x-forwarded-for")||"").split(",")[0].trim();
  if(!ip)return null;
- const pepper=Deno.env.get("RATE_LIMIT_PEPPER")||Deno.env.get("SUPABASE_URL")||"nkkams";
+ const pepper=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"nkkams";
  const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(pepper+":"+ip));
  const hash=Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,"0")).join("");
  const {data,error}=await db.rpc("consume_public_rate_limit",{p_bucket_key:"login:"+hash,p_limit:30,p_window_seconds:600});
