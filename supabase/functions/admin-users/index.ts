@@ -41,7 +41,7 @@ Deno.serve(async req=>{
   const json=(value:unknown,status=200)=>jsonResponse(req,value,status);
   if(!policy.accepted)return json({error:"Origin is not allowed."},403);
   if(req.method!=="POST")return json({error:"Method not allowed"},405);
-  let body:{action?:string;role?:string;employee_id?:string;name?:string;email?:string;phone?:string;password?:string;active?:boolean;enabled?:boolean;message?:string;request_id?:string;status?:string;organization_id?:string;proposed_employee_id?:string;organization_name?:string;contact_name?:string;organization_type?:string;location?:string;description?:string};
+  let body:{action?:string;role?:string;employee_id?:string;name?:string;email?:string;phone?:string;password?:string;active?:boolean;enabled?:boolean;message?:string;request_id?:string;status?:string;organization_id?:string;batch_id?:string;proposed_employee_id?:string;organization_name?:string;contact_name?:string;organization_type?:string;location?:string;description?:string};
   try{body=await req.json()}catch{return json({error:"Request body must be valid JSON."},400)}
   const employeeId=String(body.employee_id||"").trim().toUpperCase();
   const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
