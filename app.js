@@ -228,6 +228,8 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
    const setting=await publicCall('get_organization_creation_setting');
    const enabled=setting.enabled===true;
    $('selfServiceOrgOwnerFields')?.classList.toggle('hidden',!enabled);
+   if($('requestOwnerEmployeeId'))$('requestOwnerEmployeeId').required=enabled;
+   if($('requestOwnerPassword'))$('requestOwnerPassword').required=enabled;
    const intro=$('orgRegistrationIntro');
    if(intro)intro.textContent=enabled?'Create an organisation workspace and become its Organisation Head. Your workspace will be available immediately after registration.':'Tell us about your organisation. Requests are reviewed by a NKKAMS website administrator. No account or workspace is created until approval.';
    const submit=$('organizationRequestForm')?.querySelector('button[type="submit"]');
