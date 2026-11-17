@@ -299,7 +299,7 @@ Deno.serve(async req=>{
     const orgId=String(body.organization_id||"");
     if(!/^[0-9a-f-]{36}$/i.test(orgId))return json({error:"Choose a valid organisation."},400);
     if(!isGlobalAdmin&&me.organization_id!==orgId)return json({error:"You cannot view another organisation's batches."},403);
-    let batchQuery=db.from("batches").select("id,name,is_active").eq("organization_id",orgId).order("name");
+    let batchQuery=db.from("batches").select("id,name").eq("organization_id",orgId).order("name");
     if(me.role==="teacher"){if(!me.batch_id)return json({batches:[]});batchQuery=batchQuery.eq("id",me.batch_id);}
     const {data,error}=await batchQuery;
     if(error)return json({error:"Could not load batches."},503);
