@@ -92,13 +92,21 @@
  say('saveStatus','Loading organisation and students…');
  try{
   if(isGlobalWorkspace){
-   const orgResult=await adminCall('list_my_workspaces'),orgs=orgResult.organizations||[];
-   // Recovery path: a Super Admin may already have an explicitly assigned workspace
-   // on their profile even if the membership list response is temporarily empty.
+   let orgs=[];
+   try{
+    const orgResult=await adminCall('list_my_workspaces');
+    orgs=orgResult.organizations||[];
+   }catch(workspaceError){
+    console.warn('Workspace membership lookup failed; checking the profile-assigned workspace.',workspaceError);
+   }
+   // Recovery path: use only the organisation already assigned to this signed-in profile.
+   // RLS still decides whether this account may read it.
    if(profile.organization_id&&!orgs.some(o=>o.id===profile.organization_id)){
     const {data:assignedOrg,error:assignedOrgError}=await sb.from('organizations').select('id,name,status').eq('id',profile.organization_id).maybeSingle();
-    if(!assignedOrgError&&assignedOrg&&assignedOrg.status==='active')orgs.push({...assignedOrg,membership_role:'organization_head'});
+    if(assignedOrgError)throw new Error('Could not verify your assigned organisation: '+assignedOrgError.message);
+    if(assignedOrg&&assignedOrg.status==='active')orgs.push({...assignedOrg,membership_role:'organization_head'});
    }
+   if(!orgs.length)throw new Error('No active organisation is assigned to this account. Ask an organisation head to grant access.');
    const savedOrg=readWorkspaceState().organizationId,preferredOrg=orgs.find(o=>o.id===savedOrg)||(orgs.length===1?orgs[0]:null);
    if(preferredOrg&&!profile.organization_id){profile.organization_id=preferredOrg.id;profile.organization_name=preferredOrg.name||'';}
    const optionHtml='<option value="">Choose organisation</option>'+orgs.map(o=>'<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>').join('');
@@ -115,8 +123,19 @@
    fillReports();renderDirectory();render();
    say('saveStatus','Choose an organisation to load its batches and students.');return;
   }
-  const batchResult=await adminCall('list_batches',{organization_id:profile.organization_id});
-  batches=(batchResult.batches||[]).filter(b=>b.is_active!==false);
+  let batchRows=[];
+  try{
+   const batchResult=await adminCall('list_batches',{organization_id:profile.organization_id});
+   batchRows=batchResult.batches||[];
+  }catch(batchLookupError){
+   console.warn('Secure batch-list endpoint failed; retrying through the signed-in user RLS policy.',batchLookupError);
+   const {data:directBatches,error:directBatchError}=await sb.from('batches').select('id,name').eq('organization_id',profile.organization_id).order('name');
+   if(directBatchError)throw new Error('Could not load batches: '+directBatchError.message);
+   batchRows=directBatches||[];
+  }
+  // batches has no is_active column in the live schema; all rows returned by the
+  // organisation-scoped query are valid selectable batches.
+  batches=batchRows;
   const previous=activeBatchId||readWorkspaceState().batchId||'';
   activeBatchId=batches.some(b=>b.id===previous)?previous:(batches.find(b=>b.name==='SMT-02')?.id||batches[0]?.id||'');
   const attendanceBatch=$('attendanceBatch');if(attendanceBatch){attendanceBatch.innerHTML='<option value="">'+(batches.length?'Choose batch':'No batches available')+'</option>'+batches.map(b=>'<option value="'+esc(b.id)+'">'+esc(b.name)+'</option>').join('');attendanceBatch.value=activeBatchId;attendanceBatch.disabled=!batches.length;}writeWorkspaceState({organizationId:profile.organization_id,batchId:activeBatchId});
