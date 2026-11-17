@@ -146,8 +146,8 @@ Deno.serve(async req=>{
   const token=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"");
   const{data:{user},error:authError}=await db.auth.getUser(token);
   if(authError||!user)return json({error:"Sign in to continue."},401);
-  const{data:me,error:profileError}=await db.from("profiles").select("role,is_active,organization_id").eq("id",user.id).single();
-  if(profileError||!me?.is_active||!["admin","organization_head","platform_admin","super_admin"].includes(me.role))return json({error:"You do not have permission to manage accounts."},403);
+  const{data:me,error:profileError}=await db.from("profiles").select("role,is_active,organization_id,batch_id").eq("id",user.id).single();
+  if(profileError||!me?.is_active||!["admin","teacher","organization_head","platform_admin","super_admin"].includes(me.role))return json({error:"You do not have permission to manage accounts."},403);
   const isSuper=me.role==="super_admin";
   if(body.action==="get_organization_creation_setting")return json({enabled:true});
   if(body.action==="set_organization_creation_setting")return json({error:"Public organisation registration is always enabled on this platform."},409);
@@ -289,7 +289,9 @@ Deno.serve(async req=>{
     const orgId=String(body.organization_id||"");
     if(!/^[0-9a-f-]{36}$/i.test(orgId))return json({error:"Choose a valid organisation."},400);
     if(!isGlobalAdmin&&me.organization_id!==orgId)return json({error:"You cannot view another organisation's batches."},403);
-    const {data,error}=await db.from("batches").select("id,name,is_active").eq("organization_id",orgId).order("name");
+    let batchQuery=db.from("batches").select("id,name,is_active").eq("organization_id",orgId).order("name");
+    if(me.role==="teacher"){if(!me.batch_id)return json({batches:[]});batchQuery=batchQuery.eq("id",me.batch_id);}
+    const {data,error}=await batchQuery;
     if(error)return json({error:"Could not load batches."},503);
     return json({batches:data||[]});
   }
@@ -356,6 +358,14 @@ Deno.serve(async req=>{
       if(!org)return json({error:"The selected organisation is not active."},400);
     }
     const name=String(body.name||"").trim(),password=String(body.password||"");
+    let assignedBatchId:string|null=null;
+    if(role==="teacher"){
+      const requestedBatch=String(body.batch_id||"");
+      if(!/^[0-9a-f-]{36}$/i.test(requestedBatch))return json({error:"Choose the batch this Teacher / Batch Admin is responsible for."},400);
+      const {data:assignedBatch,error:batchLookupError}=await db.from("batches").select("id").eq("id",requestedBatch).eq("organization_id",targetOrgId).maybeSingle();
+      if(batchLookupError||!assignedBatch)return json({error:"The selected batch does not belong to the chosen organisation."},400);
+      assignedBatchId=assignedBatch.id;
+    }
     if(!/^[A-Z0-9]{1,30}$/.test(employeeId))return json({error:"Employee ID must contain 1 to 30 letters or numbers."},400);
     if(!name||name.length>100)return json({error:"Enter a name of 1 to 100 characters."},400);
     if(!passwordIsStrong(password))return json({error:"Password must be at least 8 characters and include uppercase, lowercase, number, and special character."},400);
@@ -376,7 +386,7 @@ Deno.serve(async req=>{
       return json({error:"The account could not be created. Check the details and try again."},400);
     }
     const authUserId=created.user.id;
-    const{error:insertError}=await db.from("profiles").insert({id:authUserId,employee_id:employeeId,name,email:role==="admin"?(email||null):null,phone:role==="admin"?(phone||null):null,role,organization_id:role==="platform_admin"?null:targetOrgId,created_by:user.id});
+    const{error:insertError}=await db.from("profiles").insert({id:authUserId,employee_id:employeeId,name,email:role==="admin"?(email||null):null,phone:role==="admin"?(phone||null):null,role,organization_id:role==="platform_admin"?null:targetOrgId,batch_id:assignedBatchId,created_by:user.id});
     if(insertError){
       await db.auth.admin.deleteUser(authUserId);
       if(/duplicate|unique/i.test(insertError.message))return json({error:duplicateIdMessage},409);
