@@ -92,7 +92,7 @@
  say('saveStatus','Loading organisation and students…');
  try{
   if(isGlobalWorkspace){
-   const orgResult=await adminCall('list_organizations'),orgs=orgResult.organizations||[];const savedOrg=readWorkspaceState().organizationId,preferredOrg=orgs.find(o=>o.id===savedOrg)||(orgs.length===1?orgs[0]:null);if(isGlobalWorkspace&&preferredOrg&&!profile.organization_id){profile.organization_id=preferredOrg.id;profile.organization_name=preferredOrg.name||'';}
+   const orgResult=await adminCall('list_my_workspaces'),orgs=orgResult.organizations||[];const savedOrg=readWorkspaceState().organizationId,preferredOrg=orgs.find(o=>o.id===savedOrg)||(orgs.length===1?orgs[0]:null);if(isGlobalWorkspace&&preferredOrg&&!profile.organization_id){profile.organization_id=preferredOrg.id;profile.organization_name=preferredOrg.name||'';}
    const optionHtml='<option value="">Choose organisation</option>'+orgs.map(o=>'<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>').join('');
    const attendanceOrg=$('attendanceOrganization'),studentOrg=$('studentOrganization');
    if(attendanceOrg){attendanceOrg.innerHTML=optionHtml;attendanceOrg.value=profile.organization_id||'';attendanceOrg.disabled=!orgs.length;}
