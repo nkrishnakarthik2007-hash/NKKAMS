@@ -306,11 +306,14 @@ Deno.serve(async req=>{
   }
   if(body.action==="list_users"){
     if(!canManageUsers)return json({error:"Only organisation managers can view account lists."},403);
-    let query=db.from("profiles").select("employee_id,name,role,is_active,email,phone,created_at").order("created_at");
+    let query=db.from("profiles").select("employee_id,name,role,is_active,email,phone,created_at,batch_id").order("created_at");
     if(!isGlobalAdmin){query=query.eq("organization_id",me.organization_id);if(isOrgAdmin)query=query.eq("role","teacher");else query=query.in("role",["admin","teacher"]);}
     const {data,error}=await query;
     if(error)return json({error:"Could not load user accounts."},503);
-    return json({users:data||[]});
+    const batchIds=[...new Set((data||[]).map(x=>x.batch_id).filter(Boolean))];
+    const {data:batchRows}=batchIds.length?await db.from("batches").select("id,name").in("id",batchIds):{data:[]};
+    const batchNames=new Map((batchRows||[]).map(x=>[x.id,x.name]));
+    return json({users:(data||[]).map(x=>({...x,batch_name:x.batch_id?batchNames.get(x.batch_id)||null:null}))});
   }
   if(body.action==="list_reset_requests"){
     if(!isGlobalAdmin&&!isOrgHead&&!isOrgAdmin)return json({error:"Only organisation managers can view reset requests."},403);
