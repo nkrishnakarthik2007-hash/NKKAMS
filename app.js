@@ -270,34 +270,9 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
  });
  async function loadOrganizationCreationSetting(){
   if(profile?.role!=='super_admin')return;
-  const toggle=$('organizationCreationToggle');if(toggle)toggle.disabled=true;
-  say('organizationCreationStatus','Checking the saved registration setting…');
-  try{
-   const setting=await adminCall('get_organization_creation_setting');
-   if(typeof setting.enabled!=='boolean')throw new Error('The server returned an invalid setting.');
-   if(toggle)toggle.checked=setting.enabled;
-   const state=$('organizationCreationState');if(state)state.textContent=setting.enabled?'ON':'OFF';
-   $('organizationCreationSettingPanel')?.classList.toggle('is-enabled',setting.enabled);
-   say('organizationCreationStatus',setting.enabled?'Self-service is ON. New organisations can be created immediately.':'Self-service is OFF. New registrations require Super Admin approval.');
-  }catch(err){say('organizationCreationStatus','Could not load this setting. Please refresh the page or sign in again. ('+err.message+')');}
-  finally{if(toggle)toggle.disabled=false;}
+  $('organizationCreationSettingPanel')?.classList.add('is-enabled');
+  say('organizationCreationStatus','Open registration is enabled. Anyone can create an organisation and become its Organisation Head without waiting for Super Admin approval.');
  }
- $('organizationCreationToggle')?.addEventListener('change',async e=>{
-  const toggle=e.currentTarget,previous=!toggle.checked,next=toggle.checked;toggle.disabled=true;
-  say('organizationCreationStatus','Saving your registration preference…');
-  try{
-   const result=await adminCall('set_organization_creation_setting',{enabled:next});
-   if(result.enabled!==next)throw new Error('The server did not confirm the requested setting.');
-   const state=$('organizationCreationState');if(state)state.textContent=result.enabled?'ON':'OFF';
-   $('organizationCreationSettingPanel')?.classList.toggle('is-enabled',result.enabled);
-   say('organizationCreationStatus',result.enabled?'Saved. New organisations can now be created immediately.':'Saved. New registrations will require Super Admin approval.');
-   await refreshOrganizationRegistrationMode();
-  }catch(err){
-   toggle.checked=previous;const state=$('organizationCreationState');if(state)state.textContent=previous?'ON':'OFF';
-   $('organizationCreationSettingPanel')?.classList.toggle('is-enabled',previous);
-   say('organizationCreationStatus','Could not save setting: '+(err.message||'Please try again.'));
-  }finally{toggle.disabled=false}
- });
  $('toggleCreateOrganization')?.addEventListener('click',()=>$('createOrganizationForm')?.classList.toggle('hidden'));
  $('cancelCreateOrganization')?.addEventListener('click',()=>{$('createOrganizationForm')?.classList.add('hidden');$('createOrganizationForm')?.reset();say('createOrgMessage','')});
  $('createOrganizationForm')?.addEventListener('submit',async e=>{e.preventDefault();const organization_name=$('createOrgName').value.trim(),organization_type=$('createOrgType').value,location=$('createOrgLocation').value.trim(),email=$('createOrgEmail').value.trim(),phone=$('createOrgPhone').value.trim(),description=$('createOrgDescription').value.trim();if(!email&&!phone){say('createOrgMessage','Provide at least one contact method: email or phone.');return}const btn=$('createOrgSubmit');btn.disabled=true;say('createOrgMessage','Creating organisation…');try{await adminCall('create_organization',{organization_name,organization_type,location,email,phone,description});$('createOrganizationForm').reset();$('createOrganizationForm').classList.add('hidden');say('createOrgMessage','Organisation created successfully. You can now create batches and user accounts for it.');await loadOrganizationRequests()}catch(err){say('createOrgMessage',err.message||'Could not create organisation.')}finally{btn.disabled=false}});
