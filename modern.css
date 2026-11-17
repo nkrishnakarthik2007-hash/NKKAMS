@@ -127,3 +127,27 @@
 .org-registration-control.is-enabled{border-color:rgba(22,163,74,.25);background:linear-gradient(115deg,#f0fdf4,#f2f8ff 70%,#f0fbff)}.org-registration-control.is-enabled .org-switch-state{color:#15803d}.org-registration-control.is-enabled .switch-ui{background:#16a34a}
 [data-theme=dark] .org-registration-control{background:linear-gradient(115deg,#17283d,#1b2540);border-color:#34445e}.org-registration-control .org-registration-copy h3{color:inherit}.org-registration-control .org-setting-status{color:var(--muted,#a9b8ce)}[data-theme=dark] .org-setting-switch{background:#101d31;border-color:#34445e}[data-theme=dark] .org-switch-label{color:#e2eaf7}
 @media(max-width:650px){.org-registration-control{align-items:stretch;flex-direction:column;gap:16px;padding:18px}.org-setting-switch{width:100%;box-sizing:border-box;grid-template-columns:1fr auto;justify-items:start}.org-setting-switch .switch-ui{grid-column:2;grid-row:1/3;align-self:center}.org-switch-state{grid-column:1;grid-row:2}.org-switch-label{grid-column:1;grid-row:1}}
+
+/* NKKAMS public landing page — cinematic product-first finish */
+#landingPage .public-nav{position:sticky;top:12px;z-index:30;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+#landingPage .public-nav-links a{transition:color .2s ease,background .2s ease}
+#landingPage .public-nav-links a:hover{color:#8beaff;background:rgba(89,205,255,.09)}
+#landingPage .landing-hero{min-height:690px;align-items:center;gap:clamp(34px,6vw,92px);padding-top:clamp(72px,9vw,124px);padding-bottom:clamp(72px,9vw,124px)}
+#landingPage .hero-copy{max-width:720px}
+#landingPage .hero-copy h1{font-size:clamp(3.7rem,7.6vw,7.2rem);line-height:.94;letter-spacing:-.075em;text-wrap:balance}
+#landingPage .hero-copy>p{max-width:590px;font-size:clamp(1.04rem,1.35vw,1.2rem);line-height:1.8;color:#b6c5dc}
+#landingPage .hero-pill{border-color:rgba(100,220,255,.28);background:rgba(33,161,219,.12);box-shadow:0 0 32px rgba(35,184,255,.08)}
+#landingPage .hero-visual{min-height:470px;isolation:isolate}
+#landingPage .hero-emblem{width:190px;height:190px;font-size:100px;box-shadow:0 0 0 18px rgba(63,193,255,.035),0 0 0 48px rgba(108,94,255,.035),0 0 100px rgba(44,179,255,.24)}
+#landingPage .float-chip{border:1px solid rgba(148,209,255,.24);background:rgba(10,24,49,.82);box-shadow:0 18px 50px rgba(0,0,0,.3);backdrop-filter:blur(18px)}
+#landingPage .public-section{padding-top:clamp(76px,9vw,118px);padding-bottom:clamp(76px,9vw,118px)}
+#landingPage .public-feature{position:relative;overflow:hidden;transition:transform .25s ease,border-color .25s ease,background .25s ease}
+#landingPage .public-feature:before{content:"";position:absolute;inset:0 auto auto 0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(101,220,255,.5),transparent);opacity:.7}
+#landingPage .public-feature:hover{transform:translateY(-6px);border-color:rgba(105,213,255,.36);background:rgba(16,36,69,.92)}
+#landingPage .public-demo-callout{border:1px solid rgba(114,194,255,.18);box-shadow:0 28px 90px rgba(0,0,0,.24)}
+#landingPage .public-about{gap:clamp(36px,8vw,120px)}
+#landingPage .public-trust article{border-top:1px solid rgba(132,192,255,.2);padding-top:22px}
+#landingPage .public-request-panel{scroll-margin-top:100px}
+#landingPage #home,#landingPage #features,#landingPage #about{scroll-margin-top:110px}
+@media(max-width:760px){#landingPage .landing-hero{min-height:auto;padding-top:64px;padding-bottom:70px}#landingPage .hero-copy h1{font-size:clamp(3.25rem,14vw,5.2rem)}#landingPage .hero-visual{min-height:330px}#landingPage .hero-emblem{width:150px;height:150px;font-size:78px}#landingPage .public-nav{top:6px}}
+@media(prefers-reduced-motion:reduce){#landingPage .public-feature,#landingPage .public-nav-links a{transition:none}}
