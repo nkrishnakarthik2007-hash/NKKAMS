@@ -20,6 +20,19 @@ function jsonResponse(request: Request, body: unknown, status = 200, methods = "
 
 const loginEmail=(employeeId:string)=>`${employeeId.toUpperCase()}@login.nkkams.invalid`;
 const passwordIsStrong=(value:string)=>value.length>=12&&/[A-Z]/.test(value)&&/[a-z]/.test(value)&&/\d/.test(value)&&/[^A-Za-z0-9]/.test(value);
+
+async function applyPublicRateLimit(db,request,action,limit,windowSeconds){
+  const ip=request.headers.get("cf-connecting-ip")||request.headers.get("x-real-ip")||(request.headers.get("x-forwarded-for")||"").split(",")[0].trim();
+  if(!ip)return null;
+  const pepper=Deno.env.get("RATE_LIMIT_PEPPER")||Deno.env.get("SUPABASE_URL")||"nkkams";
+  const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(pepper+":"+ip));
+  const hash=Array.from(new Uint8Array(digest)).map(x=>x.toString(16).padStart(2,"0")).join("");
+  const {data,error}=await db.rpc("consume_public_rate_limit",{p_bucket_key:action+":"+hash,p_limit:limit,p_window_seconds:windowSeconds});
+  if(error)throw new Error("Security rate limit could not be checked.");
+  const result=Array.isArray(data)?data[0]:data;
+  return result?.allowed===false?Number(result.retry_after_seconds||60):null;
+}
+
 const duplicateIdMessage="An account already uses this Employee ID. Enter a unique Employee ID.";
 
 Deno.serve(async req=>{
@@ -51,6 +64,8 @@ Deno.serve(async req=>{
     return json({ok:true,message:"Your organisation request has been sent. The NKKAMS Super Admin will review it."},201);
   }
   if(body.action==="submit_organization_request"){
+    const retry=await applyPublicRateLimit(db,req,"organisation_signup",3,3600);
+    if(retry!==null)return json({error:"Too many organisation registration attempts from this network. Please try again in about "+Math.ceil(retry/60)+" minute(s)."},429);
     const orgName=String(body.organization_name||"").trim(),contactName=String(body.contact_name||"").trim();
     const email=String(body.email||"").trim(),phone=String(body.phone||"").trim(),message=String(body.message||"").trim().slice(0,500);
     const organizationType=String(body.organization_type||"").trim(),location=String(body.location||"").trim(),description=String(body.description||"").trim().slice(0,500);
@@ -100,6 +115,8 @@ Deno.serve(async req=>{
     return json({contacts:data||[]});
   }
   if(body.action==="submit_reset_request"){
+    const retry=await applyPublicRateLimit(db,req,"password_reset_request",5,3600);
+    if(retry!==null)return json({error:"Too many reset requests. Please try again later."},429);
     const id=String(body.employee_id||"").trim().toUpperCase();
     const message=String(body.message||"").trim().slice(0,500);
     if(!/^[A-Z0-9]{2,30}$/.test(id))return json({error:"Enter a valid Employee ID."},400);
