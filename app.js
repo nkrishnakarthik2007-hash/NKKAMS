@@ -256,13 +256,13 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
  });
  async function loadOrganizationCreationSetting(){
   if(profile?.role!=='super_admin')return;
-  try{const setting=await adminCall('get_organization_creation_setting');const toggle=$('organizationCreationToggle');if(toggle)toggle.checked=setting.enabled===true;say('organizationCreationStatus',setting.enabled?'Enabled · new registrations create an organisation immediately.':'Disabled · new registrations require Super Admin review.');}
+  try{const setting=await adminCall('get_organization_creation_setting');const toggle=$('organizationCreationToggle');if(toggle)toggle.checked=setting.enabled===true;const state=$('organizationCreationState');if(state)state.textContent=setting.enabled?'ON':'OFF';$('organizationCreationSettingPanel')?.classList.toggle('is-enabled',setting.enabled===true);say('organizationCreationStatus',setting.enabled?'New registrations create an organisation immediately.':'New registrations are sent to the Super Admin for approval.');}
   catch(err){say('organizationCreationStatus','Could not load setting: '+err.message);}
  }
  $('organizationCreationToggle')?.addEventListener('change',async e=>{
   const toggle=e.currentTarget,previous=!toggle.checked;toggle.disabled=true;
-  try{const result=await adminCall('set_organization_creation_setting',{enabled:toggle.checked});say('organizationCreationStatus',result.enabled?'Enabled · new registrations create an organisation immediately.':'Disabled · new registrations require Super Admin review.');await refreshOrganizationRegistrationMode();}
-  catch(err){toggle.checked=previous;say('organizationCreationStatus',err.message||'Could not update the setting.');}
+  try{const result=await adminCall('set_organization_creation_setting',{enabled:toggle.checked});const state=$('organizationCreationState');if(state)state.textContent=result.enabled?'ON':'OFF';$('organizationCreationSettingPanel')?.classList.toggle('is-enabled',result.enabled===true);say('organizationCreationStatus',result.enabled?'New registrations create an organisation immediately.':'New registrations are sent to the Super Admin for approval.');await refreshOrganizationRegistrationMode();}
+  catch(err){toggle.checked=previous;const state=$('organizationCreationState');if(state)state.textContent=previous?'ON':'OFF';$('organizationCreationSettingPanel')?.classList.toggle('is-enabled',previous);say('organizationCreationStatus',err.message||'Could not update the setting.');}
   finally{toggle.disabled=false}
  });
  $('toggleCreateOrganization')?.addEventListener('click',()=>$('createOrganizationForm')?.classList.toggle('hidden'));
