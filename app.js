@@ -178,6 +178,7 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
   if(!['super_admin','platform_admin'].includes(profile?.role)){say('organizationRequestMessage','Only website administrators can manage all organisations.');return}
   try{
    say('organizationRequestMessage','Loading organisations…');
+   await loadOrganizationCreationSetting();
    const [orgResult,requestResult,transferResult]=await Promise.all([
     adminCall('list_organizations'),adminCall('list_organization_requests'),adminCall('list_head_transfer_requests')
    ]);
@@ -222,15 +223,45 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
  $('refreshBatches')?.addEventListener('click',loadBatchPage);
  $('batchPageCreateForm')?.addEventListener('submit',async e=>{e.preventDefault();const name=$('batchPageName').value.trim();if(!name||!profile.organization_id)return;const btn=e.currentTarget.querySelector('button[type=submit]');btn.disabled=true;try{await adminCall('create_batch',{name,organization_id:profile.organization_id});$('batchPageName').value='';say('batchPageMessage','Batch created successfully.');await loadBatchPage();await load()}catch(err){say('batchPageMessage',err.message)}finally{btn.disabled=false}});
 
+ async function refreshOrganizationRegistrationMode(){
+  try{
+   const setting=await publicCall('get_organization_creation_setting');
+   const enabled=setting.enabled===true;
+   $('selfServiceOrgOwnerFields')?.classList.toggle('hidden',!enabled);
+   const intro=$('orgRegistrationIntro');
+   if(intro)intro.textContent=enabled?'Create an organisation workspace and become its Organisation Head. Your workspace will be available immediately after registration.':'Tell us about your organisation. Requests are reviewed by a NKKAMS website administrator. No account or workspace is created until approval.';
+   const submit=$('organizationRequestForm')?.querySelector('button[type="submit"]');
+   if(submit)submit.textContent=enabled?'Create organisation':'Submit access request';
+  }catch(err){console.warn('Could not load organisation registration setting',err);}
+ }
+ refreshOrganizationRegistrationMode();
  $('organizationRequestForm')?.addEventListener('submit',async e=>{
   e.preventDefault();
   const organization_name=$('requestOrgName').value.trim(),contact_name=$('requestContactName').value.trim(),organization_type=$('requestOrgType').value,location=$('requestOrgLocation').value.trim(),member_count=$('requestMemberCount').value,phone=$('requestOrgPhone').value.trim(),email=$('requestOrgEmail').value.trim(),intended_use=$('requestOrgMessage').value.trim();
   if(!phone&&!email){say('organizationPublicMessage','Please provide at least one contact method: email or phone.');return}
-  const message=['Organisation type: '+organization_type,'Location: '+location,'Approximate members: '+member_count,intended_use?'Intended use: '+intended_use:''].filter(Boolean).join('\n').slice(0,500);
-  const submit=$('organizationRequestForm').querySelector('button[type="submit"]');submit.disabled=true;say('organizationPublicMessage','Sending your request…');
-  try{await publicCall('create_organization_request',{organization_name,contact_name,email,phone,message});$('organizationRequestForm').reset();say('organizationPublicMessage','Thank you. Your request has been submitted for review. No account or access is created until it is approved.')}
-  catch(err){say('organizationPublicMessage',err.message||'Could not submit your request. Please try again.')}
+  const message=['Approximate members: '+member_count,intended_use?'Intended use: '+intended_use:''].filter(Boolean).join('\n').slice(0,500);
+  const enabled=!$('selfServiceOrgOwnerFields')?.classList.contains('hidden');
+  const payload={organization_name,contact_name,organization_type,location,email,phone,message,description:intended_use};
+  if(enabled){payload.employee_id=$('requestOwnerEmployeeId').value.trim().toUpperCase();payload.password=$('requestOwnerPassword').value;}
+  const submit=$('organizationRequestForm').querySelector('button[type="submit"]');submit.disabled=true;say('organizationPublicMessage',enabled?'Creating your organisation…':'Sending your request…');
+  try{
+   const result=enabled?await publicCall('submit_organization_request',payload):await publicCall('create_organization_request',payload);
+   $('organizationRequestForm').reset();
+   say('organizationPublicMessage',result.message||(enabled?'Organisation created. You can now sign in using your Employee ID and password.':'Thank you. Your request has been submitted for review.'));
+   await refreshOrganizationRegistrationMode();
+  }catch(err){say('organizationPublicMessage',err.message||'Could not submit your request. Please try again.')}
   finally{submit.disabled=false}
+ });
+ async function loadOrganizationCreationSetting(){
+  if(profile?.role!=='super_admin')return;
+  try{const setting=await adminCall('get_organization_creation_setting');const toggle=$('organizationCreationToggle');if(toggle)toggle.checked=setting.enabled===true;say('organizationCreationStatus',setting.enabled?'Enabled · new registrations create an organisation immediately.':'Disabled · new registrations require Super Admin review.');}
+  catch(err){say('organizationCreationStatus','Could not load setting: '+err.message);}
+ }
+ $('organizationCreationToggle')?.addEventListener('change',async e=>{
+  const toggle=e.currentTarget,previous=!toggle.checked;toggle.disabled=true;
+  try{const result=await adminCall('set_organization_creation_setting',{enabled:toggle.checked});say('organizationCreationStatus',result.enabled?'Enabled · new registrations create an organisation immediately.':'Disabled · new registrations require Super Admin review.');await refreshOrganizationRegistrationMode();}
+  catch(err){toggle.checked=previous;say('organizationCreationStatus',err.message||'Could not update the setting.');}
+  finally{toggle.disabled=false}
  });
  $('toggleCreateOrganization')?.addEventListener('click',()=>$('createOrganizationForm')?.classList.toggle('hidden'));
  $('cancelCreateOrganization')?.addEventListener('click',()=>{$('createOrganizationForm')?.classList.add('hidden');$('createOrganizationForm')?.reset();say('createOrgMessage','')});
