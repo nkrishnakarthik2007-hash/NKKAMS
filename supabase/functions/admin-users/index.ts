@@ -61,9 +61,9 @@ Deno.serve(async req=>{
     if(phone&&!/^[+0-9().\-\s]{7,25}$/.test(phone))return json({error:"Enter a valid phone number."},400);
     if(!passwordIsStrong(password))return json({error:"Password must be at least 12 characters and include uppercase, lowercase, number and special character."},400);
     if(!/^[A-Z0-9]{2,30}$/.test(employeeId))return json({error:"Choose an Employee ID with 2 to 30 letters or numbers."},400);
-    const {data:setting,error:settingError}=await db.from("platform_settings").select("setting_value").eq("setting_key","organization_creation_enabled").single();
-    if(settingError)return json({error:"Organisation registration settings are unavailable. Please try again later."},503);
-    const creationEnabled=setting?.setting_value===true;
+    // Public self-service registration is intentionally always enabled.
+    // New organisations must not depend on the platform owner's availability.
+    const creationEnabled=true;
     const {data:exists}=await db.from("profiles").select("id").eq("employee_id",employeeId).maybeSingle();
     if(exists)return json({error:duplicateIdMessage},409);
     const {data:existingOrg}=await db.from("organizations").select("id").ilike("name",orgName).maybeSingle();
@@ -93,11 +93,7 @@ Deno.serve(async req=>{
     if(error)return json({error:"Could not check setup status."},503);
     return json({bootstrap_available:(count||0)===0});
   }
-  if(body.action==="get_organization_creation_setting"){
-    const {data,error}=await db.from("platform_settings").select("setting_value").eq("setting_key","organization_creation_enabled").single();
-    if(error)return json({error:"Could not load organisation registration settings."},503);
-    return json({enabled:data?.setting_value===true});
-  }
+  if(body.action==="get_organization_creation_setting")return json({enabled:true});
   if(body.action==="public_admin_contacts"){
     const {data,error}=await db.from("admin_contacts").select("name,whatsapp,email").eq("is_active",true).order("name");
     if(error)return json({error:"Could not load administrator contacts."},503);
@@ -136,18 +132,8 @@ Deno.serve(async req=>{
   const{data:me,error:profileError}=await db.from("profiles").select("role,is_active,organization_id").eq("id",user.id).single();
   if(profileError||!me?.is_active||!["admin","organization_head","platform_admin","super_admin"].includes(me.role))return json({error:"You do not have permission to manage accounts."},403);
   const isSuper=me.role==="super_admin";
-  if(body.action==="get_organization_creation_setting"){
-    const {data,error}=await db.from("platform_settings").select("setting_value").eq("setting_key","organization_creation_enabled").single();
-    if(error)return json({error:"Could not load organisation registration settings."},503);
-    return json({enabled:data?.setting_value===true});
-  }
-  if(body.action==="set_organization_creation_setting"){
-    if(!isSuper)return json({error:"Only the Super Admin can change public organisation registration."},403);
-    if(typeof body.enabled!=="boolean")return json({error:"Choose whether organisation creation should be enabled or disabled."},400);
-    const {error}=await db.from("platform_settings").upsert({setting_key:"organization_creation_enabled",setting_value:body.enabled,updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:"setting_key"});
-    if(error)return json({error:"Could not save the organisation registration setting."},500);
-    return json({ok:true,enabled:body.enabled});
-  }
+  if(body.action==="get_organization_creation_setting")return json({enabled:true});
+  if(body.action==="set_organization_creation_setting")return json({error:"Public organisation registration is always enabled on this platform."},409);
   const isPlatformAdmin=me.role==="platform_admin";
   const isGlobalAdmin=isSuper||isPlatformAdmin;
   const isOrgHead=me.role==="organization_head";
