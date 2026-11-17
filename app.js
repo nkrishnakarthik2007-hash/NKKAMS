@@ -279,7 +279,7 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
    const state=$('organizationCreationState');if(state)state.textContent=setting.enabled?'ON':'OFF';
    $('organizationCreationSettingPanel')?.classList.toggle('is-enabled',setting.enabled);
    say('organizationCreationStatus',setting.enabled?'Self-service is ON. New organisations can be created immediately.':'Self-service is OFF. New registrations require Super Admin approval.');
-  }catch(err){say('organizationCreationStatus','Could not load setting: '+err.message);}
+  }catch(err){say('organizationCreationStatus','Could not load this setting. Please refresh the page or sign in again. ('+err.message+')');}
   finally{if(toggle)toggle.disabled=false;}
  }
  $('organizationCreationToggle')?.addEventListener('change',async e=>{
