@@ -305,6 +305,7 @@ Deno.serve(async req=>{
     return json({ok:true,batch:data},201);
   }
   if(body.action==="list_users"){
+    if(!canManageUsers)return json({error:"Only organisation managers can view account lists."},403);
     let query=db.from("profiles").select("employee_id,name,role,is_active,email,phone,created_at").order("created_at");
     if(!isGlobalAdmin){query=query.eq("organization_id",me.organization_id);if(isOrgAdmin)query=query.eq("role","teacher");else query=query.in("role",["admin","teacher"]);}
     const {data,error}=await query;
@@ -312,6 +313,7 @@ Deno.serve(async req=>{
     return json({users:data||[]});
   }
   if(body.action==="list_reset_requests"){
+    if(!isGlobalAdmin&&!isOrgHead&&!isOrgAdmin)return json({error:"Only organisation managers can view reset requests."},403);
     const {data,error}=await db.from("password_reset_requests").select("id,employee_id,message,status,created_at").order("created_at",{ascending:false});
     if(error)return json({error:"Could not load reset requests."},503);
     if(isGlobalAdmin)return json({requests:data||[]});
@@ -332,6 +334,7 @@ Deno.serve(async req=>{
     return json({ok:true});
   }
   if(body.action==="reset_user_password"){
+    if(!canManageUsers)return json({error:"Only organisation managers can reset user passwords."},403);
     const targetId=String(body.employee_id||"").trim().toUpperCase();
     const password=String(body.password||"");
     if(password.length<12||!/[A-Z]/.test(password)||!/[a-z]/.test(password)||!/[0-9]/.test(password)||!/[^A-Za-z0-9]/.test(password))return json({error:"Password must be at least 12 characters and include uppercase, lowercase, number and symbol."},400);
@@ -346,6 +349,7 @@ Deno.serve(async req=>{
     return json({ok:true});
   }
   if(body.action==="create_user"){
+    if(!canManageUsers)return json({error:"Only organisation managers can create user accounts."},403);
     const role=body.role;
     if(!["admin","teacher","platform_admin"].includes(role||""))return json({error:"Choose Teacher, Organisation Admin or Website Admin."},400);
     if(role==="platform_admin"&&!isSuper)return json({error:"Only the Super Admin can create website administrators."},403);
@@ -368,7 +372,7 @@ Deno.serve(async req=>{
     }
     if(!/^[A-Z0-9]{1,30}$/.test(employeeId))return json({error:"Employee ID must contain 1 to 30 letters or numbers."},400);
     if(!name||name.length>100)return json({error:"Enter a name of 1 to 100 characters."},400);
-    if(!passwordIsStrong(password))return json({error:"Password must be at least 8 characters and include uppercase, lowercase, number, and special character."},400);
+    if(!passwordIsStrong(password))return json({error:"Password must be at least 12 characters and include uppercase, lowercase, number, and special character."},400);
     const email=String(body.email||"").trim(),phone=String(body.phone||"").trim();
     if(role==="admin"){
       if(!email&&!phone)return json({error:"Provide at least one Admin contact method: phone/WhatsApp or email. Phone is preferred."},400);
@@ -418,6 +422,7 @@ Deno.serve(async req=>{
     return json({ok:true});
   }
   if(body.action==="set_active"){
+    if(!canManageUsers)return json({error:"Only organisation managers can change account status."},403);
     if(target.role==="super_admin"||(target.role==="platform_admin"&&!isSuper))return json({error:"This website administrator account is protected from your role."},403);
     const active=!!body.active;
     const{error:updateError}=await db.from("profiles").update({is_active:active,updated_by:user.id}).eq("id",target.id);
