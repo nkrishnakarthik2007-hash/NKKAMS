@@ -69,12 +69,14 @@ Deno.serve(async req=>{
     if(createError)return json({error:/already registered|already exists|duplicate/i.test(createError.message)?duplicateIdMessage:"Could not create your account. Check your details and try again."},400);
     if(creationEnabled){
       const slug=orgName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48)+"-"+crypto.randomUUID().slice(0,8);
-      const {data:org,error:orgError}=await db.from("organizations").insert({name:orgName,slug,status:"active",created_by:created.user.id,head_user_id:created.user.id,organization_type:organizationType||null,location:location||null,contact_email:email||null,contact_phone:phone||null,description:description||null}).select("id").single();
+      const {data:org,error:orgError}=await db.from("organizations").insert({name:orgName,slug,status:"active",organization_type:organizationType||null,location:location||null,contact_email:email||null,contact_phone:phone||null,description:description||null}).select("id").single();
       if(orgError){await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not create the organisation. No account was retained."},400);}
       const {error:batchError}=await db.from("batches").insert({organization_id:org.id,name:"SMT-01"});
       if(batchError){await db.from("organizations").delete().eq("id",org.id);await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not create the first batch. No account was retained."},500);}
       const {error:profileError}=await db.from("profiles").insert({id:created.user.id,employee_id:employeeId,name:contactName,role:"organization_head",is_active:true,organization_id:org.id,email:email||null,phone:phone||null});
       if(profileError){await db.from("batches").delete().eq("organization_id",org.id);await db.from("organizations").delete().eq("id",org.id);await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not activate your Organisation Head account. No account was retained."},500);}
+      const {error:headError}=await db.from("organizations").update({created_by:created.user.id,head_user_id:created.user.id}).eq("id",org.id);
+      if(headError){await db.from("profiles").delete().eq("id",created.user.id);await db.from("batches").delete().eq("organization_id",org.id);await db.from("organizations").delete().eq("id",org.id);await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not assign you as Organisation Head. No account was retained."},500);}
       return json({ok:true,created:true,organization_id:org.id,message:"Your organisation has been created successfully. You are its Organisation Head. Sign in using your Employee ID and password."},201);
     }
     const {error:profileInsertError}=await db.from("profiles").insert({id:created.user.id,employee_id:employeeId,name:contactName,role:"organization_head",is_active:false,email:email||null,phone:phone||null});
