@@ -330,3 +330,25 @@ tbody tr:hover{background:#f8faff}
 [data-theme=dark] #landingPage .public-demo-callout p{color:#61738c}
 [data-theme=dark] #landingPage .public-request-panel{background:#fff!important}
 @media(max-width:760px){.login-card{padding:26px 21px}.login-wrap{padding:22px 14px}}
+
+/* NKKAMS registration and sign-in refinements */
+#landingPage .public-request-panel{scroll-margin-top:96px}
+#landingPage .public-request-panel .public-section-heading h2{font-size:clamp(28px,4vw,38px)}
+#landingPage .public-request-panel .user-form{gap:16px}
+#landingPage .public-request-panel .user-form>label{font-size:13px;font-weight:650}
+#landingPage .public-request-panel input,#landingPage .public-request-panel select{min-height:46px}
+#landingPage .public-request-panel .form-grid-two{gap:14px}
+#landingPage .public-request-panel .privacy-consent{display:flex;align-items:flex-start;gap:10px;grid-column:1/-1;padding:12px 14px;border:1px solid #e2eaf4;border-radius:11px;background:#f8faff}
+#landingPage .public-request-panel .privacy-consent input{width:17px;min-width:17px;height:17px;min-height:17px;margin:2px 0 0;accent-color:#2457d6}
+#landingPage .public-request-panel .privacy-consent a{color:#2457d6;font-weight:750}
+#landingPage .public-request-panel .public-privacy-note{padding:12px 14px;border-radius:10px;background:#f7f9fc}
+.login-wrap{min-height:calc(100vh - 96px);padding:40px 18px}
+.login-card{width:min(100%,450px);padding:40px}
+.login-card .login-icon{width:48px;height:48px;border-radius:15px;box-shadow:0 8px 18px rgba(36,87,214,.16)}
+.login-card .eyebrow{margin:18px 0 8px}
+.login-card h1{margin:0 0 10px}
+.login-card .form-stack{margin-top:26px}
+.login-card .form-stack input{min-height:48px}
+.login-card #forgotToggle{margin-top:16px}
+#backToLanding{min-height:45px;margin-top:20px}
+@media(max-width:650px){.login-card{padding:28px 22px}}
