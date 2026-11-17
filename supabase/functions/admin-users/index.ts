@@ -28,7 +28,7 @@ Deno.serve(async req=>{
   const json=(value:unknown,status=200)=>jsonResponse(req,value,status);
   if(!policy.accepted)return json({error:"Origin is not allowed."},403);
   if(req.method!=="POST")return json({error:"Method not allowed"},405);
-  let body:{action?:string;role?:string;employee_id?:string;name?:string;email?:string;phone?:string;password?:string;active?:boolean;message?:string;request_id?:string;status?:string;organization_id?:string;proposed_employee_id?:string;organization_name?:string;contact_name?:string};
+  let body:{action?:string;role?:string;employee_id?:string;name?:string;email?:string;phone?:string;password?:string;active?:boolean;enabled?:boolean;message?:string;request_id?:string;status?:string;organization_id?:string;proposed_employee_id?:string;organization_name?:string;contact_name?:string;organization_type?:string;location?:string;description?:string};
   try{body=await req.json()}catch{return json({error:"Request body must be valid JSON."},400)}
   const employeeId=String(body.employee_id||"").trim().toUpperCase();
   const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -50,26 +50,48 @@ Deno.serve(async req=>{
   if(body.action==="submit_organization_request"){
     const orgName=String(body.organization_name||"").trim(),contactName=String(body.contact_name||"").trim();
     const email=String(body.email||"").trim(),phone=String(body.phone||"").trim(),message=String(body.message||"").trim().slice(0,500);
+    const organizationType=String(body.organization_type||"").trim(),location=String(body.location||"").trim(),description=String(body.description||"").trim().slice(0,500);
     const password=String(body.password||"");
     if(!orgName||orgName.length>120||!contactName||contactName.length>100)return json({error:"Enter a valid organisation and contact name."},400);
     if(!email&&!phone)return json({error:"Provide a phone number or email address."},400);
     if(email&&(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254))return json({error:"Enter a valid email address."},400);
+    if(phone&&!/^[+0-9().\-\s]{7,25}$/.test(phone))return json({error:"Enter a valid phone number."},400);
     if(!passwordIsStrong(password))return json({error:"Password must be at least 12 characters and include uppercase, lowercase, number and special character."},400);
     if(!/^[A-Z0-9]{2,30}$/.test(employeeId))return json({error:"Choose an Employee ID with 2 to 30 letters or numbers."},400);
+    const {data:setting,error:settingError}=await db.from("platform_settings").select("setting_value").eq("setting_key","organization_creation_enabled").single();
+    if(settingError)return json({error:"Organisation registration settings are unavailable. Please try again later."},503);
+    const creationEnabled=setting?.setting_value===true;
     const {data:exists}=await db.from("profiles").select("id").eq("employee_id",employeeId).maybeSingle();
     if(exists)return json({error:duplicateIdMessage},409);
+    const {data:existingOrg}=await db.from("organizations").select("id").ilike("name",orgName).maybeSingle();
+    if(existingOrg)return json({error:"An organisation with this name is already registered."},409);
     const {data:created,error:createError}=await db.auth.admin.createUser({email:loginEmail(employeeId),password,email_confirm:true,user_metadata:{employee_id:employeeId,name:contactName}});
-    if(createError)return json({error:/already registered|already exists|duplicate/i.test(createError.message)?duplicateIdMessage:"Could not create your pending account. Check your details and try again."},400);
+    if(createError)return json({error:/already registered|already exists|duplicate/i.test(createError.message)?duplicateIdMessage:"Could not create your account. Check your details and try again."},400);
+    if(creationEnabled){
+      const slug=orgName.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48)+"-"+crypto.randomUUID().slice(0,8);
+      const {data:org,error:orgError}=await db.from("organizations").insert({name:orgName,slug,status:"active",created_by:created.user.id,head_user_id:created.user.id,organization_type:organizationType||null,location:location||null,contact_email:email||null,contact_phone:phone||null,description:description||null}).select("id").single();
+      if(orgError){await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not create the organisation. No account was retained."},400);}
+      const {error:batchError}=await db.from("batches").insert({organization_id:org.id,name:"SMT-01"});
+      if(batchError){await db.from("organizations").delete().eq("id",org.id);await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not create the first batch. No account was retained."},500);}
+      const {error:profileError}=await db.from("profiles").insert({id:created.user.id,employee_id:employeeId,name:contactName,role:"organization_head",is_active:true,organization_id:org.id,email:email||null,phone:phone||null});
+      if(profileError){await db.from("batches").delete().eq("organization_id",org.id);await db.from("organizations").delete().eq("id",org.id);await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not activate your Organisation Head account. No account was retained."},500);}
+      return json({ok:true,created:true,organization_id:org.id,message:"Your organisation has been created successfully. You are its Organisation Head. Sign in using your Employee ID and password."},201);
+    }
     const {error:profileInsertError}=await db.from("profiles").insert({id:created.user.id,employee_id:employeeId,name:contactName,role:"organization_head",is_active:false,email:email||null,phone:phone||null});
     if(profileInsertError){await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not create your pending account."},500);}
-    const {error:requestError}=await db.from("organization_requests").insert({organization_name:orgName,contact_name:contactName,email:email||null,phone:phone||null,message:message||null,requested_by:created.user.id,status:"pending"});
+    const {error:requestError}=await db.from("organization_requests").insert({organization_name:orgName,contact_name:contactName,email:email||null,phone:phone||null,message:message||null,requested_by:created.user.id,status:"pending",organization_type:organizationType||null,location:location||null,description:description||null});
     if(requestError){await db.from("profiles").delete().eq("id",created.user.id);await db.auth.admin.deleteUser(created.user.id);return json({error:"Could not submit the organisation request."},500);}
-    return json({ok:true,message:"Your organisation request and account were submitted. You can sign in after the Super Admin approves the request."},201);
+    return json({ok:true,created:false,message:"Your organisation request and account were submitted. You can sign in after the Super Admin approves the request."},201);
   }
   if(body.action==="bootstrap_status"){
     const {count,error}=await db.from("profiles").select("id",{count:"exact",head:true});
     if(error)return json({error:"Could not check setup status."},503);
     return json({bootstrap_available:(count||0)===0});
+  }
+  if(body.action==="get_organization_creation_setting"){
+    const {data,error}=await db.from("platform_settings").select("setting_value").eq("setting_key","organization_creation_enabled").single();
+    if(error)return json({error:"Could not load organisation registration settings."},503);
+    return json({enabled:data?.setting_value===true});
   }
   if(body.action==="public_admin_contacts"){
     const {data,error}=await db.from("admin_contacts").select("name,whatsapp,email").eq("is_active",true).order("name");
@@ -109,6 +131,18 @@ Deno.serve(async req=>{
   const{data:me,error:profileError}=await db.from("profiles").select("role,is_active,organization_id").eq("id",user.id).single();
   if(profileError||!me?.is_active||!["admin","organization_head","platform_admin","super_admin"].includes(me.role))return json({error:"You do not have permission to manage accounts."},403);
   const isSuper=me.role==="super_admin";
+  if(body.action==="get_organization_creation_setting"){
+    const {data,error}=await db.from("platform_settings").select("setting_value").eq("setting_key","organization_creation_enabled").single();
+    if(error)return json({error:"Could not load organisation registration settings."},503);
+    return json({enabled:data?.setting_value===true});
+  }
+  if(body.action==="set_organization_creation_setting"){
+    if(!isSuper)return json({error:"Only the Super Admin can change public organisation registration."},403);
+    if(typeof body.enabled!=="boolean")return json({error:"Choose whether organisation creation should be enabled or disabled."},400);
+    const {error}=await db.from("platform_settings").upsert({setting_key:"organization_creation_enabled",setting_value:body.enabled,updated_by:user.id,updated_at:new Date().toISOString()},{onConflict:"setting_key"});
+    if(error)return json({error:"Could not save the organisation registration setting."},500);
+    return json({ok:true,enabled:body.enabled});
+  }
   const isPlatformAdmin=me.role==="platform_admin";
   const isGlobalAdmin=isSuper||isPlatformAdmin;
   const isOrgHead=me.role==="organization_head";
