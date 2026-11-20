@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243a">
+  <title>Register organisation | NKKAMS</title>
+  <link rel="stylesheet" href="./styles.css?v=18">
+  <link rel="stylesheet" href="./modern.css?v=23">
+  <link rel="stylesheet" href="./public.css?v=4">
+  <style>
+    body{background:#f5f8fc}
+    .register-page{min-height:100vh;padding:36px 18px 60px}
+    .register-shell{max-width:860px;margin:26px auto;background:#fff;border:1px solid #e5ebf2;border-radius:24px;padding:clamp(22px,4vw,42px);box-shadow:0 16px 48px rgba(25,52,80,.07)}
+    .register-heading{max-width:660px;margin-bottom:26px}
+    .register-heading h1{font-size:clamp(28px,4vw,40px);letter-spacing:-1.2px;color:#172d46;margin:0 0 12px}
+    .register-heading p{color:#68788b;line-height:1.7;margin:0}
+    .register-form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .register-form label{display:flex;flex-direction:column;gap:7px;color:#324b66;font-size:13px;font-weight:650}
+    .register-form input,.register-form select,.register-form textarea{width:100%;box-sizing:border-box}
+    .register-form .wide{grid-column:1/-1}
+    .register-form .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .register-form .privacy-consent{display:flex;flex-direction:row;align-items:flex-start;gap:9px;font-weight:500;line-height:1.5}
+    .register-form .privacy-consent input{width:auto;margin-top:3px}
+    .register-form button,.register-form .form-message{grid-column:1/-1}
+    .register-note{font-size:12px;color:#7b8999;margin:0}
+    @media(max-width:650px){.register-form{grid-template-columns:1fr}.register-form .wide,.register-form button,.register-form .form-message{grid-column:1}.register-form .two{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <nav class="public-nav">
+    <a class="public-nav-brand" href="./index.html">NKKAMS<span>•</span></a>
+    <div class="public-nav-links"><a href="./index.html">Home</a><a href="./demo.html">Demo</a><a href="./privacy.html">Privacy</a></div>
+    <a class="primary public-login" href="./index.html#login">Login ↗</a>
+  </nav>
+  <main class="register-page">
+    <section class="register-shell">
+      <div class="register-heading">
+        <span class="public-kicker">GET STARTED WITH NKKAMS</span>
+        <h1>Create your organisation workspace</h1>
+        <p>Create an organisation workspace and become its Organisation Head. After successful registration, use your Employee ID and password to sign in.</p>
+      </div>
+      <form id="organizationRequestForm" class="register-form">
+        <label>Organisation name<input id="requestOrgName" required maxlength="100" placeholder="Enter organisation name"></label>
+        <label>Contact person<input id="requestContactName" required maxlength="100" placeholder="Your full name"></label>
+        <div class="two wide" id="selfServiceOrgOwnerFields">
+          <label>Choose Employee ID<input id="requestOwnerEmployeeId" required maxlength="30" pattern="[A-Za-z0-9]{2,30}" placeholder="Your login ID" autocomplete="username"></label>
+          <label>Create password<input id="requestOwnerPassword" type="password" required minlength="12" maxlength="128" placeholder="12+ characters" autocomplete="new-password"></label>
+        </div>
+        <p class="register-note wide">These details create your Organisation Head login. Keep your Employee ID and password safe.</p>
+        <label>Organisation type<select id="requestOrgType" required><option value="">Choose organisation type</option><option>School</option><option>College / University</option><option>Pharmaceutical / Manufacturing</option><option>Healthcare / Hospital</option><option>IT / Technology</option><option>Corporate / Private Company</option><option>Government Organisation</option><option>Other</option></select></label>
+        <label>Location<input id="requestOrgLocation" required maxlength="160" placeholder="City, State"></label>
+        <label>Approximate number of members<select id="requestMemberCount" required><option value="">Select approximate size</option><option>1–25</option><option>26–100</option><option>101–500</option><option>501–1,000</option><option>More than 1,000</option></select></label>
+        <div class="two wide">
+          <label>Email<input id="requestOrgEmail" type="email" maxlength="254" placeholder="name@example.com"></label>
+          <label>Phone / WhatsApp<input id="requestOrgPhone" type="tel" maxlength="25" placeholder="+91..."></label>
+        </div>
+        <p class="register-note wide">Provide at least one contact method: email or phone.</p>
+        <label class="wide">How would you like to use NKKAMS?<textarea id="requestOrgMessage" rows="3" maxlength="350" placeholder="Tell us about your attendance process or what you need from NKKAMS"></textarea></label>
+        <label class="privacy-consent wide"><input id="requestPrivacyConsent" type="checkbox" required> <span>I have read the <a href="./privacy.html" target="_blank" rel="noopener">Privacy Notice</a> and understand how my registration information will be used.</span></label>
+        <p class="register-note wide">You are responsible for informing your organisation members about attendance data entered into this workspace. See the <a href="./privacy.html">Privacy Notice</a>.</p>
+        <button class="primary" id="organizationRegisterSubmit" type="submit">Create organisation workspace</button>
+        <p id="organizationPublicMessage" class="form-message wide" role="status"></p>
+      </form>
+    </section>
+    <footer class="public-footer"><span>© 2026 NKKAMS · An independent early-stage project</span><a href="./index.html">Back to homepage</a><a href="./privacy.html">Privacy notice</a></footer>
+  </main>
+  <script src="./config.js"></script>
+  <script>
+    const cfg=window.NKKAMS_CONFIG;
+    const form=document.getElementById('organizationRequestForm');
+    const message=document.getElementById('organizationPublicMessage');
+    const submit=document.getElementById('organizationRegisterSubmit');
+    const say=(text)=>message.textContent=text;
+    async function publicCall(action,body={}) {
+      const response=await fetch(cfg.url+'/functions/v1/admin-users',{method:'POST',headers:{'Content-Type':'application/json','apikey':cfg.publishableKey},body:JSON.stringify({action,...body})});
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||'The request failed.');
+      return result;
+    }
+    form.addEventListener('submit',async e=>{
+      e.preventDefault();
+      const organization_name=document.getElementById('requestOrgName').value.trim();
+      const contact_name=document.getElementById('requestContactName').value.trim();
+      const organization_type=document.getElementById('requestOrgType').value;
+      const location=document.getElementById('requestOrgLocation').value.trim();
+      const member_count=document.getElementById('requestMemberCount').value;
+      const phone=document.getElementById('requestOrgPhone').value.trim();
+      const email=document.getElementById('requestOrgEmail').value.trim();
+      const intended_use=document.getElementById('requestOrgMessage').value.trim();
+      if(!phone&&!email){say('Please provide at least one contact method: email or phone.');return;}
+      const messageText=['Approximate members: '+member_count,intended_use?'Intended use: '+intended_use:''].filter(Boolean).join('\n').slice(0,500);
+      const payload={organization_name,contact_name,organization_type,location,email,phone,message:messageText,description:intended_use,employee_id:document.getElementById('requestOwnerEmployeeId').value.trim().toUpperCase(),password:document.getElementById('requestOwnerPassword').value};
+      submit.disabled=true;say('Creating your organisation…');
+      try {
+        const result=await publicCall('submit_organization_request',payload);
+        form.reset();
+        say(result.message||'Your organisation workspace is ready. Go to Login and sign in using your new Employee ID and password.');
+      } catch(err) {say(err.message||'Could not register your organisation. Please try again.');}
+      finally {submit.disabled=false;}
+    });
+  </script>
+</body>
+</html>
