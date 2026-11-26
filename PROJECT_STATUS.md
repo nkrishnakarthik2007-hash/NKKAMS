@@ -10,24 +10,7 @@ Last updated: 2026-11-27
 
 ## Verified live data
 
-| Item | Live value |
-|---|---:|
-| Active organisations | 1 — Hetero |
-| Batches | 2 — SMT-01 and SMT-02 |
-| Students | 105 |
-| Unique student Employee IDs | 105 |
-| Attendance records | 105 |
-| Attendance on 2026-11-15 | 102 Present, 3 Absent |
-| Active user profiles | 2 |
-| Active administrator contacts | 2 |
-| Password reset requests | 0 |
-| Student-left requests | 0 |
-| Holidays / non-working days | 0 |
-
-Current live roles:
-- Employee ID 241536 — Super Admin.
-- Employee ID 135175 — Hetero Organisation Head.
-- The Hetero Organisation Head assignment was already present in the live database; this milestone did not change it.
+Aggregate live counts and account identifiers are intentionally omitted from this public status file. The live role assignments were not changed during this milestone.
 
 ## Implemented and deployed
 
@@ -69,15 +52,9 @@ Current live roles:
 
 ### Verified live backend snapshot
 - Supabase project status: `ACTIVE_HEALTHY`.
-- Organisations: 1.
-- Students: 129.
-- Attendance records: 0.
-- Active profiles: 2.
-- Holidays: 0.
-- Pending organisation requests: 0.
-- Pending password-reset requests: 0.
-
-**Important data discrepancy:** the 2026-11-16 snapshot above recorded 105 attendance rows. The current database count is 0. This review did not modify or delete attendance data. Confirm whether this is an intentional reset, a data migration, or an unexpected loss before relying on NKKAMS for official attendance.
+- A current attendance-row count no longer matches the previous project status snapshot.
+- Exact live employee and attendance counts are intentionally kept out of this public repository. This review did not modify or delete attendance data.
+- Confirm privately whether the discrepancy is an intentional reset, a data migration, or an unexpected loss before relying on NKKAMS for official attendance.
 
 ### Deployment and CI
 - The latest observed custom Pages workflow run (2026-11-20 15:41 UTC) failed in `tests/smoke.mjs` before the deploy step.
