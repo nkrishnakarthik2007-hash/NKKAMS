@@ -1,6 +1,6 @@
 # NKKAMS Project Status
 
-Last updated: 2026-11-16
+Last updated: 2026-11-27
 
 ## Live project
 
@@ -63,3 +63,33 @@ Current live roles:
 - No existing student or attendance records were deleted.
 - No existing organisation head was promoted or replaced during this milestone.
 - No production test accounts were created.
+
+
+## Engineering review snapshot — 2026-11-27
+
+### Verified live backend snapshot
+- Supabase project status: `ACTIVE_HEALTHY`.
+- Organisations: 1.
+- Students: 129.
+- Attendance records: 0.
+- Active profiles: 2.
+- Holidays: 0.
+- Pending organisation requests: 0.
+- Pending password-reset requests: 0.
+
+**Important data discrepancy:** the 2026-11-16 snapshot above recorded 105 attendance rows. The current database count is 0. This review did not modify or delete attendance data. Confirm whether this is an intentional reset, a data migration, or an unexpected loss before relying on NKKAMS for official attendance.
+
+### Deployment and CI
+- The latest observed custom Pages workflow run (2026-11-20 15:41 UTC) failed in `tests/smoke.mjs` before the deploy step.
+- The failure came from a duplicate, obsolete organisation-registration handler left in `app.js` after the form moved to `register-organisation.html`. Its DOM IDs are not part of `index.html`.
+- The repository's latest observed push is 2026-11-22. No later successful custom Pages workflow was visible during this review.
+- GitHub reports Pages enabled, but the live page response could not be independently verified in this review. A successful source build is not proof that the latest commit is live.
+
+### Supabase review
+- Auth leaked-password protection is disabled; enable it in Supabase Auth settings.
+- Performance advisor reports 21 unindexed foreign keys, 2 RLS auth-initplan warnings and 17 multiple-permissive-policy warnings. These are scale/performance follow-ups; review query plans and policy intent before changing indexes or RLS.
+- No database migration or production data mutation was performed during this review.
+
+### Work in progress
+- A separate PR removes the obsolete registration handler, checks the public registration page independently, and adds PR-only smoke CI. It does not deploy to production.
+- Next: review the PR checks, merge only after approval, then verify the Pages deployment; separately investigate the attendance-count discrepancy and complete Admin/Teacher role tests.
