@@ -91,5 +91,6 @@ Current live roles:
 - No database migration or production data mutation was performed during this review.
 
 ### Work in progress
-- A separate PR removes the obsolete registration handler, checks the public registration page independently, and adds PR-only smoke CI. It does not deploy to production.
-- Next: review the PR checks, merge only after approval, then verify the Pages deployment; separately investigate the attendance-count discrepancy and complete Admin/Teacher role tests.
+- Draft PR #9 removes the obsolete registration handler, checks the public registration page independently, and adds PR-only smoke CI. The PR validation passed on 2026-11-26: JavaScript syntax and frontend smoke checks both succeeded. It does not deploy to production.
+- No user-facing bug/feedback form was found; consider a privacy-safe form after the attendance data discrepancy and deployment are resolved.
+- Next: review and approve PR #9, then verify the Pages deployment; separately investigate the attendance-count discrepancy and complete Admin/Teacher role tests.
