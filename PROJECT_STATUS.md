@@ -87,7 +87,7 @@ Current live roles:
 
 ### Supabase review
 - Auth leaked-password protection is disabled; enable it in Supabase Auth settings.
-- Performance advisor reports 21 unindexed foreign keys, 2 RLS auth-initplan warnings and 17 multiple-permissive-policy warnings. These are scale/performance follow-ups; review query plans and policy intent before changing indexes or RLS.
+- Performance advisor reports 21 unindexed foreign keys, 2 RLS auth-initplan warnings, 5 unused indexes and 17 multiple-permissive-policy warnings. These are scale/performance follow-ups; review query plans and policy intent before changing indexes or RLS.
 - No database migration or production data mutation was performed during this review.
 
 ### Work in progress
