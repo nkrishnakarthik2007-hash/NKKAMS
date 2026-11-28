@@ -263,34 +263,6 @@ async function loadAttendance(){if(!sb||!profile?.organization_id){attendance={}
  $('refreshBatches')?.addEventListener('click',loadBatchPage);
  $('batchPageCreateForm')?.addEventListener('submit',async e=>{e.preventDefault();const name=$('batchPageName').value.trim();if(!name||!profile.organization_id)return;const btn=e.currentTarget.querySelector('button[type=submit]');btn.disabled=true;try{await adminCall('create_batch',{name,organization_id:profile.organization_id});$('batchPageName').value='';say('batchPageMessage','Batch created successfully.');await loadBatchPage();await load()}catch(err){say('batchPageMessage',err.message)}finally{btn.disabled=false}});
 
- function refreshOrganizationRegistrationMode(){
-  const enabled=true;
-  $('selfServiceOrgOwnerFields')?.classList.remove('hidden');
-  if($('requestOwnerEmployeeId'))$('requestOwnerEmployeeId').required=true;
-  if($('requestOwnerPassword'))$('requestOwnerPassword').required=true;
-  const intro=$('orgRegistrationIntro');
-  if(intro)intro.textContent='Create your organisation workspace and become its Organisation Head. Your workspace is created immediately after successful registration.';
-  const submit=$('organizationRequestForm')?.querySelector('button[type="submit"]');
-  if(submit)submit.textContent='Create organisation workspace';
- }
- refreshOrganizationRegistrationMode();
- $('organizationRequestForm')?.addEventListener('submit',async e=>{
-  e.preventDefault();
-  const organization_name=$('requestOrgName').value.trim(),contact_name=$('requestContactName').value.trim(),organization_type=$('requestOrgType').value,location=$('requestOrgLocation').value.trim(),member_count=$('requestMemberCount').value,phone=$('requestOrgPhone').value.trim(),email=$('requestOrgEmail').value.trim(),intended_use=$('requestOrgMessage').value.trim();
-  if(!phone&&!email){say('organizationPublicMessage','Please provide at least one contact method: email or phone.');return}
-  const message=['Approximate members: '+member_count,intended_use?'Intended use: '+intended_use:''].filter(Boolean).join('\n').slice(0,500);
-  const enabled=!$('selfServiceOrgOwnerFields')?.classList.contains('hidden');
-  const payload={organization_name,contact_name,organization_type,location,email,phone,message,description:intended_use};
-  if(enabled){payload.employee_id=$('requestOwnerEmployeeId').value.trim().toUpperCase();payload.password=$('requestOwnerPassword').value;}
-  const submit=$('organizationRequestForm').querySelector('button[type="submit"]');submit.disabled=true;say('organizationPublicMessage',enabled?'Creating your organisation…':'Sending your request…');
-  try{
-   const result=enabled?await publicCall('submit_organization_request',payload):await publicCall('create_organization_request',payload);
-   $('organizationRequestForm').reset();
-   say('organizationPublicMessage',result.message||'Your organisation workspace is ready. Go to Login and sign in using your new Employee ID and password.');
-   await refreshOrganizationRegistrationMode();
-  }catch(err){say('organizationPublicMessage',err.message||'Could not submit your request. Please try again.')}
-  finally{submit.disabled=false}
- });
  async function loadOrganizationCreationSetting(){
   if(profile?.role!=='super_admin')return;
   $('organizationCreationSettingPanel')?.classList.add('is-enabled');
