@@ -1,16 +1,12 @@
 # NKKAMS Project Status
 
-Last updated: 2026-11-27
+Last updated: 2026-11-29
 
 ## Live project
 
 - Website: https://nkrishnakarthik2007-hash.github.io/NKKAMS/
 - Repository: https://github.com/nkrishnakarthik2007-hash/NKKAMS
-- The website configuration points to the live Supabase project. Changes in this milestone were applied to that project, not a separate test database.
-
-## Verified live data
-
-Aggregate live counts and account identifiers are intentionally omitted from this public status file. The live role assignments were not changed during this milestone.
+- GitHub reports Pages enabled. The live page could not be independently fetched from this review environment, so current visitor availability is unverified.
 
 ## Implemented and deployed
 
@@ -27,47 +23,48 @@ Aggregate live counts and account identifiers are intentionally omitted from thi
 - Employee ID login lockout after five failed attempts, with a 30-minute lockout and administrator notifications.
 - Login rejects inactive accounts and accounts belonging to suspended organisations.
 - Public organisation request form is connected to the backend.
-- Existing Hetero students and attendance were preserved.
+- Soft-left workflow preserves student history by design; current historical attendance availability still needs to be verified.
 
-## Current deployed backend versions
+## Current backend and data-integrity review
 
-- `admin-users`: version 28.
-- `nkkams-login`: version 6.
-
-## Remaining validation
-
-- Complete a live role-by-role test with an Organisation Admin and a Teacher account. The live database currently has a Super Admin and an Organisation Head, but no separate Organisation Admin or Teacher account.
-- Restore the original SQL files for the already-applied multi-organisation migrations (20261116044821–20261116052734) into the repository. Their applied versions are present in Supabase, but their original SQL files were not present in the GitHub repository when audited; the new migration files in this change match the later live versions.
-- Verify a second organisation end-to-end after a real organisation request is submitted and approved.
-- Enable Supabase Auth leaked-password protection. The security check currently reports this setting as disabled; it is an Auth dashboard setting not exposed by the connected project tools.
-
-## Data safety
-
-- No existing student or attendance records were deleted.
-- No existing organisation head was promoted or replaced during this milestone.
-- No production test accounts were created.
-
-
-## Engineering review snapshot — 2026-11-27
-
-### Verified live backend snapshot
 - Supabase project status: `ACTIVE_HEALTHY`.
-- A current attendance-row count no longer matches the previous project status snapshot.
-- Exact live employee and attendance counts are intentionally kept out of this public repository. This review did not modify or delete attendance data.
-- Confirm privately whether the discrepancy is an intentional reset, a data migration, or an unexpected loss before relying on NKKAMS for official attendance.
+- The current `public.attendance` table returned no rows in the aggregate check. Do not infer that historical attendance was intentionally cleared or restore anything automatically.
+- The previous project status and the current live database do not agree. Confirm whether the source of truth changed, a migration/reset occurred, or data is missing before using NKKAMS for official attendance.
+- No production data was changed during this review.
 
-### Deployment and CI
-- The latest observed custom Pages workflow run (2026-11-20 15:41 UTC) failed in `tests/smoke.mjs` before the deploy step.
-- The failure came from a duplicate, obsolete organisation-registration handler left in `app.js` after the form moved to `register-organisation.html`. Its DOM IDs are not part of `index.html`.
-- The repository's latest observed push is 2026-11-22. No later successful custom Pages workflow was visible during this review.
-- GitHub reports Pages enabled, but the live page response could not be independently verified in this review. A successful source build is not proof that the latest commit is live.
+## Migration-history drift — important
 
-### Supabase review
-- Auth leaked-password protection is disabled; enable it in Supabase Auth settings.
-- Performance advisor reports 21 unindexed foreign keys, 2 RLS auth-initplan warnings, 5 unused indexes and 17 multiple-permissive-policy warnings. These are scale/performance follow-ups; review query plans and policy intent before changing indexes or RLS.
-- No database migration or production data mutation was performed during this review.
+- Supabase's migration ledger contains 25 applied versions.
+- The repository's `supabase/migrations` directory contains 18 SQL files.
+- Ten applied multi-organisation migration versions between `20261116044821` and `20261116052734` are absent from the repository.
+- Two later migration files have names/timestamps that do not match the corresponding ledger versions: the organisation-leadership audit migration and organisation-profile-fields migration.
+- Two repository migration files (`20261117070000_global_organization_creation_toggle` and `20261117131000_add_super_admin_hetero_head_membership`) were not present in the live migration ledger at review time.
+- Do not run `db reset`, replay migrations, restore old SQL from guesses, or apply a schema change until the exact source SQL and live schema have been reconciled. Recover the original files from trusted Git history/backup or reconstruct and review a forward-only migration from the live schema.
 
-### Work in progress
-- Draft PR #9 removes the obsolete registration handler, checks the public registration page independently, and adds PR-only smoke CI. The PR validation passed on 2026-11-26: JavaScript syntax and frontend smoke checks both succeeded. It does not deploy to production.
-- No user-facing bug/feedback form was found; consider a privacy-safe form after the attendance data discrepancy and deployment are resolved.
-- Next: review and approve PR #9, then verify the Pages deployment; separately investigate the attendance-count discrepancy and complete Admin/Teacher role tests.
+## Deployment and CI
+
+- Draft PR #9: https://github.com/nkrishnakarthik2007-hash/NKKAMS/pull/9
+- PR validation run [45877909377](https://github.com/nkrishnakarthik2007-hash/NKKAMS/actions/runs/45877909377) passed JavaScript syntax and frontend smoke checks. It is PR-only validation and does not deploy Pages.
+- The last observed custom Pages deployment workflow on main failed on 2026-11-20 before its deploy step. GitHub's dynamic Pages build/deploy workflow for the same commit completed successfully. No newer main Pages run was visible.
+- Direct live URL fetch was blocked in the review environment; do not label the site down or fully verified.
+
+## Supabase security and performance
+
+- Health advisor: no health lints.
+- Auth leaked-password protection is disabled; enable it in Supabase Auth settings after review.
+- Performance advisor: 21 unindexed foreign keys, 2 RLS auth-initplan warnings, 5 unused indexes and 17 multiple-permissive-policy warnings. Review query plans and policy intent before changing indexes or RLS.
+- No database migration, policy change or production data mutation was performed.
+
+## Feedback and support
+
+- No in-app Report a Problem form was found.
+- A public GitHub issue form is not appropriate for student/employee reports. Use a private support channel or an explicitly consented, access-controlled backend before collecting free text or diagnostics.
+
+## Exact next steps
+
+1. Reconcile the attendance table with trusted backups, historical exports and migration records. Preserve all existing student and attendance history; do not restore blindly.
+2. Recover the missing applied migration SQL from trusted source history/backup and reconcile the two timestamp mismatches and two unapplied repository files.
+3. Review PR #9; after merge, verify the actual Pages deployment.
+4. Test Super Admin, Organisation Head, Organisation Admin and Teacher roles, then test a second organisation with isolated data.
+5. Enable leaked-password protection in Supabase Auth after owner approval.
+6. Add a private feedback/report channel only after its access control and retention policy are defined.
