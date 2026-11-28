@@ -34,7 +34,7 @@ Last updated: 2026-11-29
 
 ## Migration-history drift — important
 
-- Supabase's migration ledger contains 25 applied versions.
+- Supabase's migration ledger contains 26 applied versions.
 - The repository's `supabase/migrations` directory contains 18 SQL files.
 - Ten applied multi-organisation migration versions between `20261116044821` and `20261116052734` are absent from the repository.
 - Two later migration files have names/timestamps that do not match the corresponding ledger versions: the organisation-leadership audit migration and organisation-profile-fields migration.
